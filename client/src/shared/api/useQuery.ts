@@ -21,11 +21,15 @@ export function useQuery<T>({ queryKey, queryFn }: UseQueryOptions<T>): UseQuery
   const hash = JSON.stringify(queryKey);
 
   const state = useSyncExternalStore(
-    (listener) => cache.subscribe(queryKey, listener),
-    () => cache.getState<T>(queryKey) ?? (EMPTY as QueryState<T>),
+    function subscribe(listener) {
+      return cache.subscribe(queryKey, listener);
+    },
+    function getSnapshot() {
+      return cache.getState<T>(queryKey) ?? (EMPTY as QueryState<T>);
+    },
   );
 
-  useEffect(() => {
+  useEffect(function fetchOnMount() {
     cache.fetch(queryKey, queryFn);
     // queryKey는 hash로 비교한다 (배열 참조가 매번 바뀌므로).
     // eslint-disable-next-line react-hooks/exhaustive-deps
