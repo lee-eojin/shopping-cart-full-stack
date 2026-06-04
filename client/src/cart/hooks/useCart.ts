@@ -1,4 +1,4 @@
-import { useQuery } from "../../shared/api/useQuery.ts";
+import { useQuery } from "../../shared/api/query/useQuery.ts";
 import { getCart } from "../cartApi.ts";
 import type { CartItem } from "../types.ts";
 

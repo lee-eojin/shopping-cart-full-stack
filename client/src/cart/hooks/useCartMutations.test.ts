@@ -1,8 +1,8 @@
 import { describe, test, expect, afterEach } from "@jest/globals";
 import { renderHook, waitFor, act } from "@testing-library/react";
 import { createElement, type ReactNode } from "react";
-import { QueryCache } from "../../shared/api/queryCache.ts";
-import { QueryCacheProvider } from "../../shared/api/QueryCacheProvider.tsx";
+import { QueryCache } from "../../shared/api/query/queryCache.ts";
+import { QueryCacheProvider } from "../../shared/api/query/QueryCacheProvider.tsx";
 import { resetCart } from "../../mocks/handlers.ts";
 import { useCart } from "./useCart.ts";
 import { useCartMutations } from "./useCartMutations.ts";

@@ -1,5 +1,5 @@
-import { useMutation } from "../../shared/api/useMutation.ts";
-import { useQueryCache } from "../../shared/api/queryCacheContext.ts";
+import { useMutation } from "../../shared/api/query/useMutation.ts";
+import { useQueryCache } from "../../shared/api/query/queryCacheContext.ts";
 import { addToCart, updateQuantity, removeFromCart } from "../cartApi.ts";
 
 export function useCartMutations() {
