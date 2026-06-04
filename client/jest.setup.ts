@@ -1,4 +1,4 @@
-import "@testing-library/jest-dom";
+import "@testing-library/jest-dom/jest-globals";
 import { server } from "./src/mocks/server";
 
 beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
