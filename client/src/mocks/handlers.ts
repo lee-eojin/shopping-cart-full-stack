@@ -1,5 +1,6 @@
 import { http, HttpResponse } from "msw";
 import { products, cart as initialCart } from "./fixtures.ts";
+import type { UpdateQuantityRequest } from "../cart/types.ts";
 
 const PRODUCTS_URL = `${import.meta.env.VITE_API_BASE_URL}/products`;
 const CART_URL = `${import.meta.env.VITE_API_BASE_URL}/cart`;
@@ -23,7 +24,7 @@ export const handlers = [
 
   http.patch(`${CART_URL}/:id`, async ({ params, request }) => {
     const id = Number(params.id);
-    const { quantity } = (await request.json()) as { quantity: number };
+    const { quantity } = (await request.json()) as UpdateQuantityRequest;
     cart = cart.map((item) => (item.id === id ? { ...item, quantity } : item));
     return new HttpResponse(null, { status: 204 });
   }),

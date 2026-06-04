@@ -13,6 +13,6 @@ export function createProduct(body: CreateProductRequest): Promise<MessageRespon
   });
 }
 
-export function deleteProduct(id: number): Promise<void> {
+export function deleteProduct(id: Product["id"]): Promise<void> {
   return apiRequest<void>(`/products/${id}`, { method: "DELETE" });
 }
