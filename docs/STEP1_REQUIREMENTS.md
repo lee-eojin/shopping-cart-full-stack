@@ -1,6 +1,6 @@
 ## Step 1
 
-### 기능 구현 목록
+### 기능 구현 목록 (BE)
 
 - 상품 (Products Controller)
   - [x] 상품 목록을 조회할 수 있다. (GET /products)
