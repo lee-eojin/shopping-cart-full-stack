@@ -18,13 +18,4 @@ export function OrderButton({ amount, disabled, onCheckout }: OrderButtonProps) 
 const Button = styled.button`
   width: 100%;
   padding: 16px;
-  background-color: #1d76d2;
-  color: #fff;
-  font-size: 16px;
-  cursor: pointer;
-
-  &:disabled {
-    background-color: #b0b0b0;
-    cursor: not-allowed;
-  }
 `;

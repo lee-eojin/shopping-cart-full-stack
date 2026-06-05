@@ -52,7 +52,4 @@ export function CartContainer() {
   );
 }
 
-const Empty = styled.p`
-  text-align: center;
-  color: #888;
-`;
+const Empty = styled.p``;

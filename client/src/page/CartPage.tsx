@@ -4,14 +4,19 @@ import { CartContainer } from "../cart/components/CartContainer.tsx";
 
 export function CartPage() {
   return (
-    <Stack gap={24}>
-      <Title>SHOP</Title>
-      <CartContainer />
-    </Stack>
+    <Page>
+      <Stack gap={24}>
+        <Title>SHOP</Title>
+        <CartContainer />
+      </Stack>
+    </Page>
   );
 }
 
-const Title = styled.h1`
-  margin: 0;
-  font-size: 20px;
+const Page = styled.div`
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 16px;
 `;
+
+const Title = styled.h1``;

@@ -12,8 +12,4 @@ export function FreeShippingNotice({ remaining }: FreeShippingNoticeProps) {
   return <Notice>{formatPrice(remaining)} 더 담으면 무료배송</Notice>;
 }
 
-const Notice = styled.p`
-  margin: 0;
-  font-size: 14px;
-  color: #1d76d2;
-`;
+const Notice = styled.p``;

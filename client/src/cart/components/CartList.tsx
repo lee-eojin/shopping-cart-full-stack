@@ -11,7 +11,7 @@ interface CartListProps {
 
 export function CartList({ items, onSelect, onQuantityChange, onRemove }: CartListProps) {
   return (
-    <Stack as="ul" gap={16}>
+    <Stack as="ul" gap={16} css={{ listStyle: "none", margin: 0, padding: 0 }}>
       {items.map((item) => (
         <CartItem
           key={item.id}
