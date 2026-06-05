@@ -1,5 +1,7 @@
+import { CartPage } from "./page/CartPage.tsx";
+
 function App() {
-  return <h1>SHOP</h1>;
+  return <CartPage />;
 }
 
 export default App;
