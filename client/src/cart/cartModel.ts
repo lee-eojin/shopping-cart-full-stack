@@ -22,11 +22,27 @@ export function clampQuantity(quantity: number): number {
   return Math.min(MAX_QUANTITY, Math.max(MIN_QUANTITY, quantity));
 }
 
+export interface CartSummary {
+  orderAmount: number;
+  shippingFee: number;
+  total: number;
+  remaining: number;
+}
+
+// 선택 상태가 반영된 view로부터 주문 요약을 한 번에 계산
+export function calcSummary(items: SelectableCartItem[]): CartSummary {
+  const orderAmount = calcOrderAmount(items);
+  const shippingFee = calcShippingFee(orderAmount);
+  const total = calcTotal(orderAmount, shippingFee);
+  const remaining = FREE_SHIPPING_THRESHOLD - orderAmount;
+  return { orderAmount, shippingFee, total, remaining };
+}
+
 export type CartAction =
   | { type: "quantity"; id: number; quantity: number }
   | { type: "remove"; id: number };
 
-// 낙관적 업데이트용 순수 상태 변환 (서버 응답 전 UI를 미리 반영)
+// 낙관적 업데이트용 순수 상태 변환
 export function applyCartAction(items: CartItem[], action: CartAction): CartItem[] {
   switch (action.type) {
     case "quantity":

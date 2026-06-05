@@ -1,13 +1,16 @@
+import { useNavigate } from "react-router-dom";
 import styled from "@emotion/styled";
 import { Stack } from "../shared/components/layout/Stack.tsx";
 import { CartContainer } from "../cart/components/CartContainer.tsx";
 
 export function CartPage() {
+  const navigate = useNavigate();
+
   return (
     <Page>
       <Stack gap={24}>
         <Title>SHOP</Title>
-        <CartContainer />
+        <CartContainer onCheckout={() => navigate("/order")} />
       </Stack>
     </Page>
   );
