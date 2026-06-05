@@ -1,12 +1,13 @@
 import { describe, test, expect } from "@jest/globals";
 import {
+  applyCartAction,
   calcOrderAmount,
   calcShippingFee,
   calcTotal,
   clampQuantity,
   SHIPPING_FEE,
 } from "./cartModel.ts";
-import type { SelectableCartItem } from "./types.ts";
+import type { CartItem, SelectableCartItem } from "./types.ts";
 
 function item(partial: Partial<SelectableCartItem>): SelectableCartItem {
   return {
@@ -65,5 +66,29 @@ describe("clampQuantity", () => {
 
   test("범위 안 값은 그대로 둔다", () => {
     expect(clampQuantity(50)).toBe(50);
+  });
+});
+
+describe("applyCartAction", () => {
+  const items: CartItem[] = [
+    { id: 1, imageUrl: "", name: "A", price: 1000, quantity: 1 },
+    { id: 2, imageUrl: "", name: "B", price: 2000, quantity: 2 },
+  ];
+
+  test("quantity 액션은 해당 상품의 수량만 바꾼다", () => {
+    const next = applyCartAction(items, { type: "quantity", id: 1, quantity: 5 });
+    expect(next.find((item) => item.id === 1)?.quantity).toBe(5);
+    expect(next.find((item) => item.id === 2)?.quantity).toBe(2);
+  });
+
+  test("remove 액션은 해당 상품을 제거한다", () => {
+    const next = applyCartAction(items, { type: "remove", id: 1 });
+    expect(next).toHaveLength(1);
+    expect(next.find((item) => item.id === 1)).toBeUndefined();
+  });
+
+  test("원본 배열을 변경하지 않는다", () => {
+    applyCartAction(items, { type: "remove", id: 1 });
+    expect(items).toHaveLength(2);
   });
 });

@@ -2,7 +2,7 @@ import { useState } from "react";
 
 interface MutationOptions<Vars, Data> {
   mutationFn: (vars: Vars) => Promise<Data>;
-  onSettled?: () => void;
+  onSettled?: () => void | Promise<void>;
 }
 
 interface UseMutationResult<Vars> {
@@ -27,7 +27,7 @@ export function useMutation<Vars = void, Data = unknown>({
       setError(reason instanceof Error ? reason : new Error(String(reason)));
     } finally {
       setIsLoading(false);
-      onSettled?.();
+      await onSettled?.();
     }
   };
 

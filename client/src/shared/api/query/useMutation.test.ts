@@ -13,7 +13,7 @@ describe("useMutation", () => {
   });
 
   test("성공이든 실패든 onSettled를 호출한다", async () => {
-    const onSettled = jest.fn();
+    const onSettled = jest.fn<() => void>();
     const failing = renderHook(() =>
       useMutation({
         mutationFn: () => Promise.reject(new Error("실패")),
@@ -27,7 +27,7 @@ describe("useMutation", () => {
   });
 
   test("성공 시 error는 비어 있다", async () => {
-    const onSettled = jest.fn();
+    const onSettled = jest.fn<() => void>();
     const { result } = renderHook(() =>
       useMutation({ mutationFn: () => Promise.resolve(), onSettled }),
     );
