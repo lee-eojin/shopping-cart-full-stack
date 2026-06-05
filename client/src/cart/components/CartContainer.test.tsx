@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom/jest-globals";
-import { describe, test, expect, beforeEach, afterEach } from "@jest/globals";
+import { describe, test, expect, beforeEach, afterEach, jest } from "@jest/globals";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse, delay } from "msw";
@@ -15,11 +15,11 @@ const CART_URL = "http://localhost:8080/cart";
 beforeEach(() => localStorage.clear());
 afterEach(resetCart);
 
-function renderContainer() {
+function renderContainer(onCheckout: () => void = jest.fn()) {
   const cache = new QueryCache();
   const wrapper = ({ children }: { children: ReactNode }) =>
     createElement(QueryCacheProvider, { cache, children });
-  return render(<CartContainer />, { wrapper });
+  return render(<CartContainer onCheckout={onCheckout} />, { wrapper });
 }
 
 describe("CartContainer", () => {
@@ -45,7 +45,6 @@ describe("CartContainer", () => {
 
     await userEvent.click(screen.getByRole("checkbox", { name: "상품명2 선택" }));
 
-    // 상품명2(40000) 제외 → 10000 + 배송비 3000 = 13000
     await waitFor(() => expect(screen.getByText("13,000원")).toBeInTheDocument());
   });
 
@@ -75,6 +74,15 @@ describe("CartContainer", () => {
     // delete 응답이 100ms 지연되지만 낙관적으로 이미 사라진다
     expect(screen.queryByText("상품명")).not.toBeInTheDocument();
     expect(screen.getByText("상품명2")).toBeInTheDocument();
+  });
+
+  test("주문 확인 버튼을 누르면 onCheckout이 호출된다", async () => {
+    const onCheckout = jest.fn();
+    renderContainer(onCheckout);
+    await waitFor(() => expect(screen.getByText("53,000원")).toBeInTheDocument());
+
+    await userEvent.click(screen.getByRole("button", { name: "주문 확인" }));
+    expect(onCheckout).toHaveBeenCalledTimes(1);
   });
 
   test("조회에 실패하면 에러와 재시도 버튼을 보여준다", async () => {

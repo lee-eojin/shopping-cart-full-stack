@@ -41,7 +41,7 @@ export function CartItem({ item, onSelect, onQuantityChange, onRemove, ...rest }
               <button type="button" aria-label="수량 감소" onClick={() => onQuantityChange(item.id, item.quantity - 1)}>
                 -
               </button>
-              <span aria-label="수량">{item.quantity}</span>
+              <Quantity aria-label="수량">{item.quantity}</Quantity>
               <button type="button" aria-label="수량 증가" onClick={() => onQuantityChange(item.id, item.quantity + 1)}>
                 +
               </button>
@@ -57,4 +57,10 @@ const QuantityControl = styled.div`
   display: flex;
   align-items: center;
   gap: 13px;
+`;
+
+const Quantity = styled.span`
+  display: inline-block;
+  min-width: 24px;
+  text-align: center;
 `;
