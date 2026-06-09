@@ -3,7 +3,7 @@ import type { ComponentPropsWithRef } from "react";
 
 interface ErrorMessageProps extends ComponentPropsWithRef<"div"> {
   message?: string;
-  onRetry: () => void;
+  onRetry?: () => void;
 }
 
 export function ErrorMessage({
@@ -14,9 +14,11 @@ export function ErrorMessage({
   return (
     <Box role="alert" {...rest}>
       <span>{message}</span>
-      <button type="button" onClick={onRetry}>
-        다시 시도
-      </button>
+      {onRetry && (
+        <button type="button" onClick={onRetry}>
+          다시 시도
+        </button>
+      )}
     </Box>
   );
 }

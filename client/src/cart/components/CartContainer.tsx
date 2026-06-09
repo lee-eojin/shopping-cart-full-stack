@@ -31,6 +31,7 @@ export function CartContainer({ onCheckout }: CartContainerProps) {
   const view = optimisticItems.map((item) => ({ ...item, selected: isSelected(item.id) }));
   const { orderAmount, shippingFee, total, remaining } = calcSummary(view);
   const allSelected = view.every((item) => item.selected);
+  const mutationError = updateQuantity.error ?? removeFromCart.error;
 
   const handleQuantityChange = (id: number, quantity: number) => {
     const next = clampQuantity(quantity);
@@ -49,6 +50,7 @@ export function CartContainer({ onCheckout }: CartContainerProps) {
 
   return (
     <Stack gap={24}>
+      {mutationError && <ErrorMessage message="요청을 처리하지 못했습니다. 다시 시도해 주세요." />}
       <SelectAll
         checked={allSelected}
         onSelectAll={(checked) =>
