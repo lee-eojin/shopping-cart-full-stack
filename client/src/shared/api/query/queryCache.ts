@@ -14,6 +14,7 @@ interface QueryEntry {
   state: QueryState<unknown>;
   queryFn: () => Promise<unknown>;
   listeners: Set<Listener>;
+  fetchId: number;
 }
 
 function hashKey(key: QueryKey): string {
@@ -40,12 +41,15 @@ export class QueryCache {
   async fetch<T>(key: QueryKey, queryFn: () => Promise<T>): Promise<void> {
     const entry = this.ensureEntry(key);
     entry.queryFn = queryFn as () => Promise<unknown>;
+    const fetchId = ++entry.fetchId;
     this.transition(entry, { status: "pending", data: entry.state.data });
 
     try {
       const data = await queryFn();
+      if (entry.fetchId !== fetchId) return;
       this.transition(entry, { status: "success", data });
     } catch (reason) {
+      if (entry.fetchId !== fetchId) return;
       this.transition(entry, { status: "error", error: toError(reason) });
     }
   }
@@ -64,6 +68,7 @@ export class QueryCache {
         state: { status: "pending" },
         queryFn: () => Promise.resolve(),
         listeners: new Set(),
+        fetchId: 0,
       };
       this.entries.set(hash, entry);
     }
