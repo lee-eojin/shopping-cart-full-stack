@@ -4,6 +4,7 @@ import {
   calcOrderAmount,
   calcShippingFee,
   calcTotal,
+  canOrder,
   clampQuantity,
   SHIPPING_FEE,
 } from "./cartModel.ts";
@@ -52,6 +53,16 @@ describe("calcShippingFee", () => {
 describe("calcTotal", () => {
   test("주문 금액 + 배송비다", () => {
     expect(calcTotal(99_999, 3_000)).toBe(102_999);
+  });
+});
+
+describe("canOrder", () => {
+  test("주문 금액이 0이면 주문할 수 없다", () => {
+    expect(canOrder(0)).toBe(false);
+  });
+
+  test("주문 금액이 있으면 주문할 수 있다", () => {
+    expect(canOrder(1)).toBe(true);
   });
 });
 

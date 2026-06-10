@@ -11,7 +11,7 @@ import { OrderButton } from "./OrderButton.tsx";
 import { useCart } from "../hooks/useCart.ts";
 import { useCartMutations } from "../hooks/useCartMutations.ts";
 import { useSelection } from "../hooks/useSelection.ts";
-import { applyCartAction, calcSummary, clampQuantity } from "../cartModel.ts";
+import { applyCartAction, calcSummary, canOrder, clampQuantity } from "../cartModel.ts";
 
 interface CartContainerProps {
   onCheckout: () => void;
@@ -68,7 +68,7 @@ export function CartContainer({ onCheckout }: CartContainerProps) {
       />
       <FreeShippingNotice remaining={remaining} />
       <OrderSummary orderAmount={orderAmount} shippingFee={shippingFee} total={total} />
-      <OrderButton disabled={orderAmount === 0} onCheckout={onCheckout} />
+      <OrderButton disabled={!canOrder(orderAmount)} onCheckout={onCheckout} />
     </Stack>
   );
 }

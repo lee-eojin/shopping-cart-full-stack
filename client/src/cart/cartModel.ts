@@ -18,6 +18,10 @@ export function calcTotal(orderAmount: number, shippingFee: number): number {
   return orderAmount + shippingFee;
 }
 
+export function canOrder(orderAmount: number): boolean {
+  return orderAmount > 0;
+}
+
 export function clampQuantity(quantity: number): number {
   return Math.min(MAX_QUANTITY, Math.max(MIN_QUANTITY, quantity));
 }
