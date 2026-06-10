@@ -5,10 +5,21 @@ import { DB } from './database';
 
 const app = express();
 
+const allowedOrigins = ['http://localhost:3000', process.env.CLIENT_ORIGIN].filter(
+  (origin): origin is string => Boolean(origin),
+);
+
 app.use((req: Request, res: Response, next) => {
-  res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
+  const origin = req.headers.origin;
+  if (origin && allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  }
   res.header('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(204);
+    return;
+  }
   next();
 });
 
