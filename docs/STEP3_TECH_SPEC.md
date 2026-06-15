@@ -35,7 +35,7 @@ interface CouponBase {
 export interface FixedCoupon extends CouponBase {
   discountType: "fixed";
   discountAmount: number; // 정액 할인 (원) - 명세 표기
-  minimumAccount: number; // minimumAmount 오타로 보이나 명세 표기를 따름
+  minimumAmount: number; // 최소 주문 금액
 }
 
 export interface BogoCoupon extends CouponBase {
@@ -48,7 +48,7 @@ export interface BogoCoupon extends CouponBase {
 
 export interface FreeShippingCoupon extends CouponBase {
   discountType: "freeShipping";
-  minimumAccount: number;
+  minimumAmount: number;
   // 할인액 필드 없음 - 그 주문의 배송비다
 }
 

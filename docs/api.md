@@ -419,7 +419,7 @@ CORS 설정:
             "description": "5,000원 할인 쿠폰",
             "expirationDate": "2026-11-30",
             "discountType": "fixed",
-            "minimumAccount": 100000,
+            "minimumAmount": 100000,
             "discountAmount": 5000,
             "applicable": false
           },
@@ -440,7 +440,7 @@ CORS 설정:
             "description": "배송비 무료 쿠폰",
             "expirationDate": "2026-08-31",
             "discountType": "freeShipping",
-            "minimumAccount": 50000,
+            "minimumAmount": 50000,
             "applicable": true
           },
           {
