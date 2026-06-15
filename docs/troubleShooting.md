@@ -91,4 +91,4 @@ L7에서 처음으로 컴포넌트 테스트(ErrorMessage.test.tsx, Spinner.test
 
 10. 부록: 최종 변경 파일
 
-jest.setup.ts의 import를 메인 진입점에서 @testing-library/jest-dom/jest-globals로 변경. 컴포넌트 테스트(ErrorMessage.test.tsx, Spinner.test.tsx)와 App.test.tsx 상단에 @testing-library/jest-dom/jest-globals import 추가, App.test.tsx는 전역 test, expect를 @jest/globals import로 통일. 루트 tsconfig.json을 솔루션 스타일에서 app을 extends하고 src를 include, exclude를 빈 배열로 둔 실제 프로젝트로 전환. tsconfig.app.json은 추적 중 임시로 넣은 jest-dom·jest 타입, exclude 변경, composite를 모두 되돌려 복원. tsconfig.node.json과 tsconfig.test.json도 임시 composite를 제거.
+jest.setup.ts의 import를 메인 진입점에서 @testing-library/jest-dom/jest-globals로 변경. 컴포넌트 테스트(ErrorMessage.test.tsx, Spinner.test.tsx)와 App.test.tsx 상단에 @testing-library/jest-dom/jest-globals import 추가, App.test.tsx는 전역 test, expect를 @jest/globals import로 통일. 루트 tsconfig.json을 솔루션 스타일에서 app을 extends하고 src를 include, exclude를 빈 배열로 둔 실제 프로젝트로 전환. tsconfig.app.json은 추적 중 임시로 넣은 jest-dom과 jest 타입, exclude 변경, composite를 모두 되돌려 복원. tsconfig.node.json과 tsconfig.test.json도 임시 composite를 제거.
