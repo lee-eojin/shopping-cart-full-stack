@@ -7,14 +7,14 @@ export interface Product {
 }
 
 export interface CouponBase {
-  counponId: number;
+  id: number;
   code: string;
   description: string;
   expirationDate: string;
 }
 
 export interface MinimumOrderAmountRule {
-  minimumAmount: number;
+  minimumOrderAmount: number;
 }
 
 export interface FixedCoupon extends CouponBase, MinimumOrderAmountRule {
@@ -66,16 +66,16 @@ export const DB: Database = {
   Cart: [],
   Coupons: [
     {
-      counponId: 1,
+      id: 1,
       code: "FIXED5000",
       description: "5,000원 할인 쿠폰",
       expirationDate: "2026-11-30",
-      minimumAmount: 100000,
+      minimumOrderAmount: 100000,
       discountType: "fixed",
       discountAmount: 5000,
     },
     {
-      counponId: 2,
+      id: 2,
       code: "BOGO",
       description: "2개 구매 시 1개 무료 쿠폰",
       expirationDate: "2026-06-30",
@@ -85,15 +85,15 @@ export const DB: Database = {
       applicableProductIds: [2],
     },
     {
-      counponId: 3,
+      id: 3,
       code: "FREESHIPPING",
       description: "배송비 무료 쿠폰",
       expirationDate: "2026-08-31",
-      minimumAmount: 50000,
+      minimumOrderAmount: 50000,
       discountType: "freeShipping",
     },
     {
-      counponId: 4,
+      id: 4,
       code: "MIRACLESALE",
       description: "30% 할인 쿠폰",
       expirationDate: "2026-07-31",
