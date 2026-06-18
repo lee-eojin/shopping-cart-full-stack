@@ -28,6 +28,7 @@ export function createOrderRouter(db: Database) {
     tryCatch((req, res) => {
       ensureExists(db.Order);
       ensureExists(db.Coupons);
+      
       res.status(200).json(orderResponse());
     }),
   );
@@ -37,9 +38,11 @@ export function createOrderRouter(db: Database) {
     tryCatch((req, res) => {
       ensureExists(db.Order);
       ensureExists(db.Coupons);
+      
       const couponIds = parseCouponIds(req.query.couponIds);
       Validator.validateCouponIds({ couponIds });
       const { couponDiscountAmount, totalPaymentAmount } = calcAmounts(context(), couponIds, db.Coupons);
+      
       res.status(200).json({ couponDiscountAmount, totalPaymentAmount });
     }),
   );
@@ -58,6 +61,7 @@ export function createOrderRouter(db: Database) {
 
       const best = pickBestCombination(db.Coupons, { items, isRemoteArea: false, now: new Date() });
       db.Order = { items, couponIds: best.couponIds, isRemoteArea: false };
+      
       res.status(201).json(orderResponse());
     }),
   );
@@ -67,15 +71,15 @@ export function createOrderRouter(db: Database) {
     tryCatch((req, res) => {
       ensureExists(db.Order);
       ensureExists(db.Coupons);
+      
       const { couponIds } = req.body as { couponIds: number[] };
 
       Validator.validateCouponIds({ couponIds });
       const ctx = context();
       if (couponIds.some((id) => !findCoupon(id))) throw new HttpError(404, "존재하지 않는 쿠폰입니다.");
-      if (couponIds.some((id) => !assessCoupon(findCoupon(id)!, ctx)))
-        throw new HttpError(400, "적용할 수 없는 쿠폰이 포함되어 있습니다.");
-
+      if (couponIds.some((id) => !assessCoupon(findCoupon(id)!, ctx))) throw new HttpError(400, "적용할 수 없는 쿠폰이 포함되어 있습니다.");
       db.Order.couponIds = couponIds;
+      
       res.status(200).json(orderResponse());
     }),
   );
@@ -85,12 +89,13 @@ export function createOrderRouter(db: Database) {
     tryCatch((req, res) => {
       ensureExists(db.Order);
       ensureExists(db.Coupons);
+      
       const { isRemoteArea } = req.body as { isRemoteArea: boolean };
-
       Validator.validateIsRemoteArea({ isRemoteArea });
       db.Order.isRemoteArea = isRemoteArea;
       const ctx = context();
       db.Order.couponIds = db.Order.couponIds.filter((id) => assessCoupon(findCoupon(id)!, ctx));
+      
       res.status(200).json(orderResponse());
     }),
   );
