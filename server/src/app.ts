@@ -1,6 +1,8 @@
 import express, { Request, Response } from 'express';
 import { createProductRouter } from './routes/product';
 import { createCartRouter } from './routes/cart';
+import { createCouponRouter } from './routes/coupon';
+import { createOrderRouter } from './routes/order';
 import { DB } from './database';
 
 const app = express();
@@ -25,5 +27,7 @@ app.use((req: Request, res: Response, next) => {
 
 app.use('/products', createProductRouter(DB));
 app.use('/cart', createCartRouter(DB));
+app.use('/coupons', createCouponRouter(DB));
+app.use('/order', createOrderRouter(DB));
 
 export default app;

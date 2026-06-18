@@ -28,4 +28,6 @@ export const TestDB: Database = {
       quantity: 2,
     },
   ],
+  Coupons: [],
+  Order: undefined,
 };
