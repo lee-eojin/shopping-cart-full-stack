@@ -39,8 +39,8 @@ export function createCartRouter(db: Database) {
       const { quantity } = req.body;
       const toBeUpdatedIndex = db.Cart.findIndex((product) => product.id === requestId);
       if (toBeUpdatedIndex === -1) throw new HttpError(404, '상품을 찾을 수 없습니다.');
-
       Validator.validateQuantity({ quantity });
+      
       db.Cart[toBeUpdatedIndex].quantity = quantity;
       res.status(204).send();
     }),

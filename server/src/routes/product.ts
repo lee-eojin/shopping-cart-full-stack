@@ -24,6 +24,7 @@ export function createProductRouter(db: Database) {
       Validator.validateRequestBody(req.body);
       const { imageUrl, name, price, quantity } = req.body;
       db.Products.push({ id: db.Products.length + 1, imageUrl, name, price, quantity });
+      
       res.status(201).json({ message: '상품이 성공적으로 생성되었습니다.' });
     }),
   );
@@ -36,9 +37,9 @@ export function createProductRouter(db: Database) {
       const requestedId = Number(req.params.id);
       const isIdExist = db.Products.find((product) => product.id === requestedId);
       if (!isIdExist) throw new HttpError(404, '상품을 찾을 수 없습니다.');
-
       db.Products = db.Products.filter((product) => product.id !== requestedId);
       db.Cart = db.Cart!.filter((product) => product.id !== requestedId);
+      
       res.status(204).send();
     }),
   );
