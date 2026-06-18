@@ -5,6 +5,11 @@ import { assessCoupon, calcAmounts, pickBestCombination, OrderContext } from "..
 import { HttpError, ensureExists } from "../httpError";
 import { tryCatch } from "./tryCatch";
 
+function parseCouponIds(raw: unknown): number[] {
+  if (typeof raw !== "string" || raw.length === 0) return [];
+  return raw.split(",").map(Number);
+}
+
 export function createOrderRouter(db: Database) {
   const orderRouter = express.Router();
   orderRouter.use(express.json());
@@ -24,6 +29,18 @@ export function createOrderRouter(db: Database) {
       ensureExists(db.Order);
       ensureExists(db.Coupons);
       res.status(200).json(orderResponse());
+    }),
+  );
+
+  orderRouter.get(
+    "/coupons/preview",
+    tryCatch((req, res) => {
+      ensureExists(db.Order);
+      ensureExists(db.Coupons);
+      const couponIds = parseCouponIds(req.query.couponIds);
+      Validator.validateCouponIds({ couponIds });
+      const { couponDiscountAmount, totalPaymentAmount } = calcAmounts(context(), couponIds, db.Coupons);
+      res.status(200).json({ couponDiscountAmount, totalPaymentAmount });
     }),
   );
 
