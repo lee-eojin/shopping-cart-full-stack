@@ -1,4 +1,4 @@
-import { RequestBody, Validator } from '../src/validation';
+import { ProductRequestBody, Validator } from '../src/validation';
 
 describe('Validation Tests', () => {
   test('필수 필드 누락 시 에러를 반환한다', () => {
@@ -7,7 +7,7 @@ describe('Validation Tests', () => {
         imageUrl: 'http://example.com/image.jpg',
         price: 1000,
         quantity: 10,
-      } as RequestBody;
+      } as ProductRequestBody;
 
       Validator.validateRequiredFields(product);
     }).toThrow('필수 필드가 누락되었습니다.');
