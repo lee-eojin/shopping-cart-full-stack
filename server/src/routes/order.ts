@@ -28,6 +28,7 @@ export function createOrderRouter(db: Database) {
     tryCatch((req, res) => {
       ensureExists(db.Order);
       ensureExists(db.Coupons);
+      
       res.status(200).json(orderResponse());
     }),
   );
@@ -41,6 +42,7 @@ export function createOrderRouter(db: Database) {
       const couponIds = parseCouponIds(req.query.couponIds);
       Validator.validateCouponIds({ couponIds });
       const { couponDiscountAmount, totalPaymentAmount } = calcAmounts(context(), couponIds, db.Coupons);
+      
       res.status(200).json({ couponDiscountAmount, totalPaymentAmount });
     }),
   );
@@ -59,6 +61,7 @@ export function createOrderRouter(db: Database) {
 
       const best = pickBestCombination(db.Coupons, { items, isRemoteArea: false, now: new Date() });
       db.Order = { items, couponIds: best.couponIds, isRemoteArea: false };
+      
       res.status(201).json(orderResponse());
     }),
   );
@@ -76,6 +79,7 @@ export function createOrderRouter(db: Database) {
       if (couponIds.some((id) => !findCoupon(id))) throw new HttpError(404, "존재하지 않는 쿠폰입니다.");
       if (couponIds.some((id) => !assessCoupon(findCoupon(id)!, ctx))) throw new HttpError(400, "적용할 수 없는 쿠폰이 포함되어 있습니다.");
       db.Order.couponIds = couponIds;
+      
       res.status(200).json(orderResponse());
     }),
   );
