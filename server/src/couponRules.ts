@@ -18,13 +18,17 @@ export interface OrderAmounts {
   totalPaymentAmount: number;
 }
 
+const FREE_SHIPPING_THRESHOLD = 100_000;
+const BASE_SHIPPING_FEE = 3_000;
+const REMOTE_AREA_SURCHARGE = 3_000;
+
 export function calcOrderAmount(items: readonly OrderItem[]): number {
   return items.reduce((sum, item) => sum + item.productPrice * item.productQuantity, 0);
 }
 
 export function calcShippingFee(ctx: OrderContext): number {
-  if (calcOrderAmount(ctx.items) >= 100_000) return 0;
-  return 3_000 + (ctx.isRemoteArea ? 3_000 : 0);
+  if (calcOrderAmount(ctx.items) >= FREE_SHIPPING_THRESHOLD) return 0;
+  return BASE_SHIPPING_FEE + (ctx.isRemoteArea ? REMOTE_AREA_SURCHARGE : 0);
 }
 
 function isExpired(coupon: Coupon, now: Date): boolean {
@@ -92,12 +96,15 @@ function percentageDiscount(coupons: readonly Coupon[], base: number): number {
   }, 0);
 }
 
+function shippingDiscount(coupons: readonly Coupon[], ctx: OrderContext): number {
+  return coupons.some((coupon) => coupon.discountType === "freeShipping") ? calcShippingFee(ctx) : 0;
+}
+
 export function calcComboDiscount(coupons: readonly Coupon[], ctx: OrderContext): number {
   const orderAmount = calcOrderAmount(ctx.items);
   const fixedLike = productDiscount(coupons, ctx.items);
   const percentage = percentageDiscount(coupons, orderAmount - fixedLike);
-  const shipping = coupons.some((coupon) => coupon.discountType === "freeShipping") ? calcShippingFee(ctx) : 0;
-  return fixedLike + percentage + shipping;
+  return fixedLike + percentage + shippingDiscount(coupons, ctx);
 }
 
 function combinationsUpToTwo(coupons: readonly Coupon[]): Coupon[][] {
@@ -123,11 +130,11 @@ export function pickBestCombination(coupons: readonly Coupon[], ctx: OrderContex
 
 export function calcAmounts(
   ctx: OrderContext,
-  couponId: readonly Coupon["id"][],
+  couponIds: readonly Coupon["id"][],
   coupons: readonly Coupon[],
 ): OrderAmounts {
   const orderAmount = calcOrderAmount(ctx.items);
-  const selected = coupons.filter((coupon) => couponId.includes(coupon.id));
+  const selected = coupons.filter((coupon) => couponIds.includes(coupon.id));
   const couponDiscountAmount = calcComboDiscount(selected, ctx);
   const shippingFee = calcShippingFee(ctx);
   const totalPaymentAmount = Math.max(0, orderAmount - couponDiscountAmount + shippingFee);
