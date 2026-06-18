@@ -10,6 +10,6 @@ export class HttpError extends Error {
   }
 }
 
-export function ensurePresent<T>(value: T): asserts value is NonNullable<T> {
+export function ensureExists<T>(value: T): asserts value is NonNullable<T> {
   if (value == null) throw new HttpError(500, SERVER_ERROR);
 }

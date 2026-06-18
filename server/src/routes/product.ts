@@ -1,7 +1,7 @@
 import express from 'express';
 import { Database } from '../database';
 import { Validator } from '../validation';
-import { HttpError, ensurePresent } from '../httpError';
+import { HttpError, ensureExists } from '../httpError';
 import { tryCatch } from './tryCatch';
 
 export function createProductRouter(db: Database) {
@@ -11,7 +11,7 @@ export function createProductRouter(db: Database) {
   productRouter.get(
     '/',
     tryCatch((req, res) => {
-      ensurePresent(db.Products);
+      ensureExists(db.Products);
       res.status(200).json(db.Products);
     }),
   );
@@ -19,7 +19,7 @@ export function createProductRouter(db: Database) {
   productRouter.post(
     '/',
     tryCatch((req, res) => {
-      ensurePresent(db.Products);
+      ensureExists(db.Products);
 
       Validator.validateRequestBody(req.body);
       const { imageUrl, name, price, quantity } = req.body;
@@ -31,7 +31,7 @@ export function createProductRouter(db: Database) {
   productRouter.delete(
     '/:id',
     tryCatch((req, res) => {
-      ensurePresent(db.Products);
+      ensureExists(db.Products);
 
       const requestedId = Number(req.params.id);
       const isIdExist = db.Products.find((product) => product.id === requestedId);

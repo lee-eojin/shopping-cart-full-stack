@@ -2,7 +2,7 @@ import express from "express";
 import { Database, Coupon } from "../database";
 import { Validator } from "../validation";
 import { assessCoupon, calcAmounts, pickBestCombination, OrderContext } from "../couponRules";
-import { HttpError, ensurePresent } from "../httpError";
+import { HttpError, ensureExists } from "../httpError";
 import { tryCatch } from "./tryCatch";
 
 export function createOrderRouter(db: Database) {
@@ -21,8 +21,8 @@ export function createOrderRouter(db: Database) {
   orderRouter.get(
     "/",
     tryCatch((req, res) => {
-      ensurePresent(db.Order);
-      ensurePresent(db.Coupons);
+      ensureExists(db.Order);
+      ensureExists(db.Coupons);
       res.status(200).json(orderResponse());
     }),
   );
@@ -30,8 +30,8 @@ export function createOrderRouter(db: Database) {
   orderRouter.post(
     "/",
     tryCatch((req, res) => {
-      ensurePresent(db.Products);
-      ensurePresent(db.Coupons);
+      ensureExists(db.Products);
+      ensureExists(db.Coupons);
 
       const items = (req.body as { productId: number; productQuantity: number }[]).map((item) => ({
         productId: item.productId,
@@ -48,8 +48,8 @@ export function createOrderRouter(db: Database) {
   orderRouter.patch(
     "/coupons",
     tryCatch((req, res) => {
-      ensurePresent(db.Order);
-      ensurePresent(db.Coupons);
+      ensureExists(db.Order);
+      ensureExists(db.Coupons);
       const { couponIds } = req.body as { couponIds: number[] };
 
       Validator.validateCouponIds({ couponIds });
@@ -66,8 +66,8 @@ export function createOrderRouter(db: Database) {
   orderRouter.patch(
     "/destination",
     tryCatch((req, res) => {
-      ensurePresent(db.Order);
-      ensurePresent(db.Coupons);
+      ensureExists(db.Order);
+      ensureExists(db.Coupons);
       const { isRemoteArea } = req.body as { isRemoteArea: boolean };
 
       Validator.validateIsRemoteArea({ isRemoteArea });

@@ -1,7 +1,7 @@
 import express from 'express';
 import { Database } from '../database';
 import { Validator } from '../validation';
-import { HttpError, ensurePresent } from '../httpError';
+import { HttpError, ensureExists } from '../httpError';
 import { tryCatch } from './tryCatch';
 
 export function createCartRouter(db: Database) {
@@ -11,7 +11,7 @@ export function createCartRouter(db: Database) {
   cartRouter.get(
     '/',
     tryCatch((req, res) => {
-      ensurePresent(db.Cart);
+      ensureExists(db.Cart);
       res.status(200).json(db.Cart);
     }),
   );
@@ -19,7 +19,7 @@ export function createCartRouter(db: Database) {
   cartRouter.post(
     '/:id',
     tryCatch((req, res) => {
-      ensurePresent(db.Cart);
+      ensureExists(db.Cart);
 
       const requestId = Number(req.params.id);
       const pickedProduct = db.Products!.find((product) => product.id === requestId);
@@ -33,7 +33,7 @@ export function createCartRouter(db: Database) {
   cartRouter.patch(
     '/:id',
     tryCatch((req, res) => {
-      ensurePresent(db.Cart);
+      ensureExists(db.Cart);
 
       const requestId = Number(req.params.id);
       const { quantity } = req.body;
@@ -49,7 +49,7 @@ export function createCartRouter(db: Database) {
   cartRouter.delete(
     '/:id',
     tryCatch((req, res) => {
-      ensurePresent(db.Cart);
+      ensureExists(db.Cart);
 
       const requestId = Number(req.params.id);
       const isIdExist = db.Cart.find((product) => product.id === requestId);
