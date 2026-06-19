@@ -10,16 +10,19 @@ export interface FixedCoupon extends CouponBase {
   discountAmount: number;
   minimumOrderAmount: number;
 }
+
 export interface BogoCoupon extends CouponBase {
   discountType: "bogo";
   buyQuantity: number;
   getQuantity: number;
   applicableProductIds: number[];
 }
+
 export interface FreeShippingCoupon extends CouponBase {
   discountType: "freeShipping";
   minimumOrderAmount: number;
 }
+
 export interface PercentageCoupon extends CouponBase {
   discountType: "percentage";
   discountRate: number;
