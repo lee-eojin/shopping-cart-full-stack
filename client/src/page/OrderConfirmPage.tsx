@@ -10,13 +10,7 @@ export function OrderConfirmPage() {
   return (
     <Page>
       <Stack gap={24}>
-        <Row
-          left={
-            <button type="button" aria-label="뒤로 가기" onClick={() => navigate(-1)}>
-              ←
-            </button>
-          }
-        />
+        <Row left={<button type="button" aria-label="뒤로 가기" onClick={() => navigate(-1)}>←</button>}/>
         <Title>주문 확인</Title>
         <OrderConfirmContainer onBackToCart={() => navigate("/cart")} />
       </Stack>

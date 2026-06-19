@@ -26,11 +26,7 @@ export function CartItem({ item, onSelect, onQuantityChange, onRemove, ...rest }
               aria-label={`${item.name} 선택`}
             />
           }
-          right={
-            <button type="button" onClick={() => onRemove(item.id)}>
-              삭제
-            </button>
-          }
+          right={<button type="button" onClick={() => onRemove(item.id)}>삭제</button>}
         />
         <Media gap={12}>
           <img src={item.imageUrl} alt={item.name} width={80} height={80} />
@@ -38,13 +34,9 @@ export function CartItem({ item, onSelect, onQuantityChange, onRemove, ...rest }
             <span>{item.name}</span>
             <span>{formatPrice(item.price)}</span>
             <QuantityControl>
-              <button type="button" aria-label="수량 감소" onClick={() => onQuantityChange(item.id, item.quantity - 1)}>
-                -
-              </button>
+              <button type="button" aria-label="수량 감소" onClick={() => onQuantityChange(item.id, item.quantity - 1)}>-</button>
               <Quantity aria-label="수량">{item.quantity}</Quantity>
-              <button type="button" aria-label="수량 증가" onClick={() => onQuantityChange(item.id, item.quantity + 1)}>
-                +
-              </button>
+              <button type="button" aria-label="수량 증가" onClick={() => onQuantityChange(item.id, item.quantity + 1)}>+</button>
             </QuantityControl>
           </Stack>
         </Media>

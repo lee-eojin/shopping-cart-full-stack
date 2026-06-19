@@ -6,11 +6,7 @@ interface ErrorMessageProps extends ComponentPropsWithRef<"div"> {
   onRetry?: () => void;
 }
 
-export function ErrorMessage({
-  message = "문제가 발생했습니다.",
-  onRetry,
-  ...rest
-}: ErrorMessageProps) {
+export function ErrorMessage({ message = "문제가 발생했습니다.", onRetry, ...rest }: ErrorMessageProps) {
   return (
     <Box role="alert" {...rest}>
       <span>{message}</span>

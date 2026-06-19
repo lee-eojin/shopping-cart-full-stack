@@ -6,11 +6,7 @@ interface OrderButtonProps {
 }
 
 export function OrderButton({ disabled, onCheckout }: OrderButtonProps) {
-  return (
-    <Button type="button" disabled={disabled} onClick={onCheckout}>
-      주문 확인
-    </Button>
-  );
+  return <Button type="button" disabled={disabled} onClick={onCheckout}>주문 확인</Button>
 }
 
 const Button = styled.button`
