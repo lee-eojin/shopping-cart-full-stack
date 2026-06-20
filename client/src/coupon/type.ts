@@ -5,10 +5,13 @@ interface CouponBase {
   expirationDate: string;
 }
 
-export interface FixedCoupon extends CouponBase {
+export interface MinimumOrderAmountRule {
+  minimumOrderAmount: number;
+}
+
+export interface FixedCoupon extends CouponBase, MinimumOrderAmountRule {
   discountType: "fixed";
   discountAmount: number;
-  minimumOrderAmount: number;
 }
 
 export interface BogoCoupon extends CouponBase {
@@ -18,9 +21,8 @@ export interface BogoCoupon extends CouponBase {
   applicableProductIds: number[];
 }
 
-export interface FreeShippingCoupon extends CouponBase {
+export interface FreeShippingCoupon extends CouponBase, MinimumOrderAmountRule {
   discountType: "freeShipping";
-  minimumOrderAmount: number;
 }
 
 export interface PercentageCoupon extends CouponBase {
