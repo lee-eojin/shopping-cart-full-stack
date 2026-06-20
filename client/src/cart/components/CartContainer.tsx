@@ -53,12 +53,7 @@ export function CartContainer({ onCheckout }: CartContainerProps) {
       {mutationError && <ErrorMessage message="요청을 처리하지 못했습니다. 다시 시도해 주세요." />}
       <SelectAll
         checked={allSelected}
-        onSelectAll={(checked) =>
-          setAll(
-            optimisticItems.map((item) => item.id),
-            checked,
-          )
-        }
+        onSelectAll={(checked) => setAll(optimisticItems.map((item) => item.id), checked)}
       />
       <CartList
         items={view}
