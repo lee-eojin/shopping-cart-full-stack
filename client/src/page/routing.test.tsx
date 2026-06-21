@@ -3,9 +3,11 @@ import { describe, test, expect, beforeEach, afterEach } from "@jest/globals";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
+
+import { resetCart } from "../mocks/handlers.ts";
 import { QueryCache } from "../shared/api/query/queryCache.ts";
 import { QueryCacheProvider } from "../shared/api/query/QueryCacheProvider.tsx";
-import { resetCart } from "../mocks/handlers.ts";
+
 import { CartPage } from "./CartPage.tsx";
 import { OrderConfirmPage } from "./OrderConfirmPage.tsx";
 

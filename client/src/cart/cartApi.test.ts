@@ -1,6 +1,8 @@
 import { describe, test, expect } from "@jest/globals";
 import { http, HttpResponse } from "msw";
+
 import { server } from "../mocks/server.ts";
+
 import { getCart, addToCart, updateQuantity, removeFromCart } from "./cartApi.ts";
 
 const CART_URL = "http://localhost:8080/cart";

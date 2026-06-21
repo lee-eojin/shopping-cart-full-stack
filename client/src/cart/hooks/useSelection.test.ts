@@ -1,5 +1,6 @@
 import { describe, test, expect, beforeEach } from "@jest/globals";
 import { renderHook, act } from "@testing-library/react";
+
 import { useSelection } from "./useSelection.ts";
 
 beforeEach(() => localStorage.clear());

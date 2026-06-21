@@ -2,8 +2,10 @@ import "@testing-library/jest-dom/jest-globals";
 import { describe, test, expect, jest } from "@jest/globals";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { CartList } from "./CartList.tsx";
+
 import type { SelectableCartItem } from "../types.ts";
+
+import { CartList } from "./CartList.tsx";
 
 const items: SelectableCartItem[] = [
   { id: 1, imageUrl: "a.jpg", name: "상품A", price: 10000, quantity: 1, selected: true },

@@ -1,0 +1,7 @@
+{
+  "eslint.workingDirectories": ["./client"],
+  "eslint.useFlatConfig": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  }
+}

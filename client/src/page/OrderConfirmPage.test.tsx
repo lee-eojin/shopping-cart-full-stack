@@ -1,13 +1,15 @@
 import "@testing-library/jest-dom/jest-globals";
 import { describe, test, expect, beforeEach, afterEach } from "@jest/globals";
 import { render, screen, waitFor } from "@testing-library/react";
+import { http, HttpResponse } from "msw";
 import { type ReactNode } from "react";
 import { MemoryRouter } from "react-router-dom";
-import { http, HttpResponse } from "msw";
+
+import { resetCart } from "../mocks/handlers.ts";
+import { server } from "../mocks/server.ts";
 import { QueryCache } from "../shared/api/query/queryCache.ts";
 import { QueryCacheProvider } from "../shared/api/query/QueryCacheProvider.tsx";
-import { server } from "../mocks/server.ts";
-import { resetCart } from "../mocks/handlers.ts";
+
 import { OrderConfirmPage } from "./OrderConfirmPage.tsx";
 
 const CART_URL = "http://localhost:8080/cart";

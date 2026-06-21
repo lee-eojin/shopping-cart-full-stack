@@ -2,8 +2,10 @@ import "@testing-library/jest-dom/jest-globals";
 import { describe, test, expect, jest } from "@jest/globals";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { CartItem } from "./CartItem.tsx";
+
 import type { SelectableCartItem } from "../types.ts";
+
+import { CartItem } from "./CartItem.tsx";
 
 const item: SelectableCartItem = {
   id: 1,

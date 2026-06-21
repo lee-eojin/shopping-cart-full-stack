@@ -1,4 +1,5 @@
 import { useEffect, useSyncExternalStore } from "react";
+
 import type { QueryKey, QueryState } from "./queryCache.ts";
 import { useQueryCache } from "./queryCacheContext.ts";
 

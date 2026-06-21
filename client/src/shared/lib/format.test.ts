@@ -1,4 +1,5 @@
 import { describe, test, expect } from "@jest/globals";
+
 import { formatPrice } from "./format.ts";
 
 describe("formatPrice", () => {

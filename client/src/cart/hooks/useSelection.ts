@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+
 import { loadFromStorage, saveToStorage } from "../../shared/lib/storage.ts";
 import type { SelectionState } from "../types.ts";
 

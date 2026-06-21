@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+
 import { formatPrice } from "../../shared/lib/format.ts";
 
 interface FreeShippingNoticeProps {

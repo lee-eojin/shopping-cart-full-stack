@@ -1,7 +1,9 @@
 import { describe, test, expect } from "@jest/globals";
 import { http, HttpResponse } from "msw";
-import { apiRequest } from "./client.ts";
+
 import { server } from "../../mocks/server.ts";
+
+import { apiRequest } from "./client.ts";
 
 describe("apiRequest", () => {
   test("200 응답이면 JSON을 반환한다", async () => {

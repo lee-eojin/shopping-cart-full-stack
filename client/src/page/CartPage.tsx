@@ -1,7 +1,8 @@
-import { useNavigate } from "react-router-dom";
 import styled from "@emotion/styled";
-import { Stack } from "../shared/components/layout/Stack.tsx";
+import { useNavigate } from "react-router-dom";
+
 import { CartContainer } from "../cart/components/CartContainer.tsx";
+import { Stack } from "../shared/components/layout/Stack.tsx";
 
 export function CartPage() {
   const navigate = useNavigate();

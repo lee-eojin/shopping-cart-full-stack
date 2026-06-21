@@ -1,5 +1,6 @@
 import { apiRequest } from "../shared/api/client.ts";
 import type { MessageResponse } from "../shared/types.ts";
+
 import type { Product, CreateProductRequest } from "./types.ts";
 
 export function getProducts(): Promise<Product[]> {

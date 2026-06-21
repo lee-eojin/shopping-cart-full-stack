@@ -1,6 +1,8 @@
 import { describe, test, expect } from "@jest/globals";
 import { http, HttpResponse } from "msw";
+
 import { server } from "../mocks/server.ts";
+
 import { getProducts, createProduct, deleteProduct } from "./productApi.ts";
 
 const PRODUCTS_URL = "http://localhost:8080/products";

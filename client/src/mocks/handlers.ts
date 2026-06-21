@@ -1,6 +1,8 @@
 import { http, HttpResponse } from "msw";
-import { products, cart as initialCart } from "./fixtures.ts";
+
 import type { UpdateQuantityRequest } from "../cart/types.ts";
+
+import { products, cart as initialCart } from "./fixtures.ts";
 
 const PRODUCTS_URL = `${import.meta.env.VITE_API_BASE_URL}/products`;
 const CART_URL = `${import.meta.env.VITE_API_BASE_URL}/cart`;

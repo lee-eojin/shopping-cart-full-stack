@@ -1,8 +1,9 @@
-import type { ComponentPropsWithRef } from "react";
 import styled from "@emotion/styled";
-import { Stack } from "../../shared/components/layout/Stack.tsx";
-import { Row } from "../../shared/components/layout/Row.tsx";
+import type { ComponentPropsWithRef } from "react";
+
 import { Media } from "../../shared/components/layout/Media.tsx";
+import { Row } from "../../shared/components/layout/Row.tsx";
+import { Stack } from "../../shared/components/layout/Stack.tsx";
 import { formatPrice } from "../../shared/lib/format.ts";
 import type { SelectableCartItem } from "../types.ts";
 

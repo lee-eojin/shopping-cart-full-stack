@@ -1,6 +1,7 @@
 import { Stack } from "../../shared/components/layout/Stack.tsx";
-import { CartItem } from "./CartItem.tsx";
 import type { SelectableCartItem } from "../types.ts";
+
+import { CartItem } from "./CartItem.tsx";
 
 interface CartListProps {
   items: SelectableCartItem[];

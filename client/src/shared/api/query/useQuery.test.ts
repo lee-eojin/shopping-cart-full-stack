@@ -1,13 +1,15 @@
 import { describe, test, expect } from "@jest/globals";
 import { renderHook, waitFor, act } from "@testing-library/react";
-import { createElement, type ReactNode } from "react";
 import { http, HttpResponse } from "msw";
+import { createElement, type ReactNode } from "react";
+
 import { server } from "../../../mocks/server.ts";
+import type { Product } from "../../../product/types.ts";
 import { apiRequest } from "../client.ts";
+
 import { QueryCache } from "./queryCache.ts";
 import { QueryCacheProvider } from "./QueryCacheProvider.tsx";
 import { useQuery } from "./useQuery.ts";
-import type { Product } from "../../../product/types.ts";
 
 const CART_URL = "http://localhost:8080/cart";
 

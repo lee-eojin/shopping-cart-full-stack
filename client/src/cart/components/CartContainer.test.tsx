@@ -4,10 +4,12 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse, delay } from "msw";
 import { createElement, type ReactNode } from "react";
+
+import { resetCart } from "../../mocks/handlers.ts";
+import { server } from "../../mocks/server.ts";
 import { QueryCache } from "../../shared/api/query/queryCache.ts";
 import { QueryCacheProvider } from "../../shared/api/query/QueryCacheProvider.tsx";
-import { server } from "../../mocks/server.ts";
-import { resetCart } from "../../mocks/handlers.ts";
+
 import { CartContainer } from "./CartContainer.tsx";
 
 const CART_URL = "http://localhost:8080/cart";

@@ -1,10 +1,11 @@
 import styled from "@emotion/styled";
-import { Stack } from "../../shared/components/layout/Stack.tsx";
-import { Spinner } from "../../shared/components/feedback/Spinner.tsx";
-import { ErrorMessage } from "../../shared/components/feedback/ErrorMessage.tsx";
+
+import { calcSummary, canOrder } from "../../cart/cartModel.ts";
 import { useCart } from "../../cart/hooks/useCart.ts";
 import { useSelection } from "../../cart/hooks/useSelection.ts";
-import { calcSummary, canOrder } from "../../cart/cartModel.ts";
+import { ErrorMessage } from "../../shared/components/feedback/ErrorMessage.tsx";
+import { Spinner } from "../../shared/components/feedback/Spinner.tsx";
+import { Stack } from "../../shared/components/layout/Stack.tsx";
 import { formatPrice } from "../../shared/lib/format.ts";
 
 interface OrderConfirmContainerProps {

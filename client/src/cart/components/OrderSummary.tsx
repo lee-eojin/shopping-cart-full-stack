@@ -1,5 +1,5 @@
-import { Stack } from "../../shared/components/layout/Stack.tsx";
 import { Row } from "../../shared/components/layout/Row.tsx";
+import { Stack } from "../../shared/components/layout/Stack.tsx";
 import { formatPrice } from "../../shared/lib/format.ts";
 
 interface OrderSummaryProps {
