@@ -6,7 +6,7 @@ type Handler = (req: Request, res: Response) => void | Promise<void>;
 export function withErrorHandling(handler: Handler): Handler {
   return async(req, res) => {
     try { 
-      await handler(req, res) 
+      await handler(req, res);
     } catch (error) {
       if (error instanceof HttpError) {
         res.status(error.status).json({ errorMessage: error.message, ...(error.code && { code: error.code }) });
