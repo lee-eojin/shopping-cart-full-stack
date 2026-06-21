@@ -3,7 +3,7 @@ import { Database, Coupon } from "../database";
 import { Validator } from "../validation";
 import { assessCoupon, calcAmounts, pickBestCombination, OrderContext } from "../couponRules";
 import { HttpError, ensureExists } from "../httpError";
-import { tryCatch } from "./tryCatch";
+import { withErrorHandling } from "./withErrorHandling";
 
 function parseCouponIds(raw: unknown): number[] {
   if (typeof raw !== "string" || raw.length === 0) return [];
@@ -25,7 +25,7 @@ export function createOrderRouter(db: Database) {
 
   orderRouter.get(
     "/",
-    tryCatch((req, res) => {
+    withErrorHandling((req, res) => {
       ensureExists(db.Order);
       ensureExists(db.Coupons);
       
@@ -35,7 +35,7 @@ export function createOrderRouter(db: Database) {
 
   orderRouter.get(
     "/coupons/preview",
-    tryCatch((req, res) => {
+    withErrorHandling((req, res) => {
       ensureExists(db.Order);
       ensureExists(db.Coupons);
       
@@ -49,7 +49,7 @@ export function createOrderRouter(db: Database) {
 
   orderRouter.post(
     "/",
-    tryCatch((req, res) => {
+    withErrorHandling((req, res) => {
       ensureExists(db.Products);
       ensureExists(db.Coupons);
 
@@ -68,7 +68,7 @@ export function createOrderRouter(db: Database) {
 
   orderRouter.patch(
     "/coupons",
-    tryCatch((req, res) => {
+    withErrorHandling((req, res) => {
       ensureExists(db.Order);
       ensureExists(db.Coupons);
       
@@ -86,7 +86,7 @@ export function createOrderRouter(db: Database) {
 
   orderRouter.patch(
     "/destination",
-    tryCatch((req, res) => {
+    withErrorHandling((req, res) => {
       ensureExists(db.Order);
       ensureExists(db.Coupons);
       

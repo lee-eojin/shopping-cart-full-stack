@@ -2,7 +2,7 @@ import express from 'express';
 import { Database } from '../database';
 import { Validator } from '../validation';
 import { HttpError, ensureExists } from '../httpError';
-import { tryCatch } from './tryCatch';
+import { withErrorHandling } from './withErrorHandling';
 
 export function createProductRouter(db: Database) {
   const productRouter = express.Router();
@@ -10,7 +10,7 @@ export function createProductRouter(db: Database) {
 
   productRouter.get(
     '/',
-    tryCatch((req, res) => {
+    withErrorHandling((req, res) => {
       ensureExists(db.Products);
       res.status(200).json(db.Products);
     }),
@@ -18,7 +18,7 @@ export function createProductRouter(db: Database) {
 
   productRouter.post(
     '/',
-    tryCatch((req, res) => {
+    withErrorHandling((req, res) => {
       ensureExists(db.Products);
 
       Validator.validateRequestBody(req.body);
@@ -31,7 +31,7 @@ export function createProductRouter(db: Database) {
 
   productRouter.delete(
     '/:id',
-    tryCatch((req, res) => {
+    withErrorHandling((req, res) => {
       ensureExists(db.Products);
 
       const requestedId = Number(req.params.id);

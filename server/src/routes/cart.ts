@@ -2,7 +2,7 @@ import express from 'express';
 import { Database } from '../database';
 import { Validator } from '../validation';
 import { HttpError, ensureExists } from '../httpError';
-import { tryCatch } from './tryCatch';
+import { withErrorHandling } from './withErrorHandling';
 
 export function createCartRouter(db: Database) {
   const cartRouter = express.Router();
@@ -10,7 +10,7 @@ export function createCartRouter(db: Database) {
 
   cartRouter.get(
     '/',
-    tryCatch((req, res) => {
+    withErrorHandling((req, res) => {
       ensureExists(db.Cart);
       res.status(200).json(db.Cart);
     }),
@@ -18,7 +18,7 @@ export function createCartRouter(db: Database) {
 
   cartRouter.post(
     '/:id',
-    tryCatch((req, res) => {
+    withErrorHandling((req, res) => {
       ensureExists(db.Cart);
 
       const requestId = Number(req.params.id);
@@ -32,7 +32,7 @@ export function createCartRouter(db: Database) {
 
   cartRouter.patch(
     '/:id',
-    tryCatch((req, res) => {
+    withErrorHandling((req, res) => {
       ensureExists(db.Cart);
 
       const requestId = Number(req.params.id);
@@ -48,7 +48,7 @@ export function createCartRouter(db: Database) {
 
   cartRouter.delete(
     '/:id',
-    tryCatch((req, res) => {
+    withErrorHandling((req, res) => {
       ensureExists(db.Cart);
 
       const requestId = Number(req.params.id);

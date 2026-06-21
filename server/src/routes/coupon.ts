@@ -2,14 +2,14 @@ import express from "express";
 import { Database } from "../database";
 import { assessCoupon, pickBestCombination, OrderContext } from "../couponRules";
 import { ensureExists } from "../httpError";
-import { tryCatch } from "./tryCatch";
+import { withErrorHandling } from "./withErrorHandling";
 
 export function createCouponRouter(db: Database) {
   const couponRouter = express.Router();
 
   couponRouter.get(
     "/",
-    tryCatch((req, res) => {
+    withErrorHandling((req, res) => {
       ensureExists(db.Coupons);
       ensureExists(db.Order);
       
