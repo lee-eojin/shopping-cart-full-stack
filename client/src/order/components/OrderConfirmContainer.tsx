@@ -2,9 +2,9 @@ import styled from "@emotion/styled";
 import { Stack } from "../../shared/components/layout/Stack.tsx";
 import { Spinner } from "../../shared/components/feedback/Spinner.tsx";
 import { ErrorMessage } from "../../shared/components/feedback/ErrorMessage.tsx";
-import { useCart } from "../hooks/useCart.ts";
-import { useSelection } from "../hooks/useSelection.ts";
-import { calcSummary, canOrder } from "../cartModel.ts";
+import { useCart } from "../../cart/hooks/useCart.ts";
+import { useSelection } from "../../cart/hooks/useSelection.ts";
+import { calcSummary, canOrder } from "../../cart/cartModel.ts";
 import { formatPrice } from "../../shared/lib/format.ts";
 
 interface OrderConfirmContainerProps {
@@ -24,9 +24,7 @@ export function OrderConfirmContainer({ onBackToCart }: OrderConfirmContainerPro
     return (
       <Stack gap={12}>
         <p>주문할 상품이 없습니다</p>
-        <button type="button" onClick={onBackToCart}>
-          장바구니로 가기
-        </button>
+        <button type="button" onClick={onBackToCart}>장바구니로 가기</button>
       </Stack>
     );
   }
@@ -39,9 +37,7 @@ export function OrderConfirmContainer({ onBackToCart }: OrderConfirmContainerPro
         <span>총 결제 금액</span>
         <Amount>{formatPrice(total)}</Amount>
       </Stack>
-      <PayButton type="button" disabled={!canOrder(orderAmount)}>
-        결제하기
-      </PayButton>
+      <PayButton type="button" disabled={!canOrder(orderAmount)}>결제하기</PayButton>
     </Stack>
   );
 }
