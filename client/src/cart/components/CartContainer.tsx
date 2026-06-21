@@ -1,17 +1,22 @@
-import { useOptimistic, useTransition } from "react";
 import styled from "@emotion/styled";
-import { Stack } from "../../shared/components/layout/Stack.tsx";
-import { Spinner } from "../../shared/components/feedback/Spinner.tsx";
+import { useOptimistic, useTransition } from "react";
+
+import { submitOrder } from "../../order/orderApi.ts";
+import type { OrderRequestItem } from "../../order/type.ts";
 import { ErrorMessage } from "../../shared/components/feedback/ErrorMessage.tsx";
-import { SelectAll } from "./SelectAll.tsx";
-import { CartList } from "./CartList.tsx";
-import { FreeShippingNotice } from "./FreeShippingNotice.tsx";
-import { OrderSummary } from "./OrderSummary.tsx";
-import { OrderButton } from "./OrderButton.tsx";
+import { Spinner } from "../../shared/components/feedback/Spinner.tsx";
+import { Stack } from "../../shared/components/layout/Stack.tsx";
+import { useAsyncAction } from "../../shared/lib/useAsyncAction.ts";
+import { applyCartAction, calcSummary, canOrder, clampQuantity } from "../cartModel.ts";
 import { useCart } from "../hooks/useCart.ts";
 import { useCartMutations } from "../hooks/useCartMutations.ts";
 import { useSelection } from "../hooks/useSelection.ts";
-import { applyCartAction, calcSummary, canOrder, clampQuantity } from "../cartModel.ts";
+
+import { CartList } from "./CartList.tsx";
+import { FreeShippingNotice } from "./FreeShippingNotice.tsx";
+import { OrderButton } from "./OrderButton.tsx";
+import { OrderSummary } from "./OrderSummary.tsx";
+import { SelectAll } from "./SelectAll.tsx";
 
 interface CartContainerProps {
   onCheckout: () => void;
@@ -23,6 +28,14 @@ export function CartContainer({ onCheckout }: CartContainerProps) {
   const { isSelected, select, setAll } = useSelection();
   const [, startTransition] = useTransition();
   const [optimisticItems, applyOptimistic] = useOptimistic(items ?? [], applyCartAction);
+
+  const checkout = useAsyncAction(async () => {
+    const orderItems: OrderRequestItem[] = optimisticItems
+      .filter((item) => isSelected(item.id))
+      .map((item) => ({ productId: item.id, productQuantity: item.quantity }));
+    await submitOrder(orderItems);
+    onCheckout();
+  });
 
   if (isLoading) return <Spinner />;
   if (error) return <ErrorMessage onRetry={refetch} />;
@@ -63,7 +76,11 @@ export function CartContainer({ onCheckout }: CartContainerProps) {
       />
       <FreeShippingNotice remaining={remaining} />
       <OrderSummary orderAmount={orderAmount} shippingFee={shippingFee} total={total} />
-      <OrderButton disabled={!canOrder(orderAmount)} onCheckout={onCheckout} />
+      {checkout.error && <ErrorMessage message="주문서를 만들지 못했습니다. 다시 시도해 주세요." />}
+      <OrderButton
+        disabled={!canOrder(orderAmount) || checkout.isPending}
+        onCheckout={() => checkout.run()}
+      />
     </Stack>
   );
 }
