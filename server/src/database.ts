@@ -1,10 +1,13 @@
 export interface Product {
-  id?: number;
+  id: number;
   imageUrl: string;
   name: string;
   price: number;
   quantity: number;
 }
+
+export type ProductId = Product["id"]
+export type CreateProductRequest = Omit<Product, "id">
 
 export interface CouponBase {
   id: number;
@@ -53,6 +56,11 @@ export interface Order {
   couponIds: number[];
   isRemoteArea: boolean;
 }
+
+export type OrderRequestItem = Pick<OrderItem, "productId" | "productQuantity">;
+export type createOrderRequest = OrderItem[]
+export type UpdateCouponsRequest = Pick<Order, "couponIds">
+export type UpdateDestinationRequest = Pick<Order, "isRemoteArea">;
 
 export interface Database {
   Products: Product[] | undefined;
