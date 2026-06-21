@@ -45,6 +45,9 @@ export interface PercentageCoupon extends CouponBase {
 
 export type Coupon = FixedCoupon | BogoCoupon | FreeShippingCoupon | PercentageCoupon;
 
+export type CouponId = Coupon["id"];
+export type CouponDiscountType = Coupon["discountType"];
+
 export interface OrderItem {
   productId: number;
   productPrice: number;
@@ -58,7 +61,7 @@ export interface Order {
 }
 
 export type OrderRequestItem = Pick<OrderItem, "productId" | "productQuantity">;
-export type createOrderRequest = OrderItem[]
+export type CreateOrderRequest = OrderItem[]
 export type UpdateCouponsRequest = Pick<Order, "couponIds">
 export type UpdateDestinationRequest = Pick<Order, "isRemoteArea">;
 
