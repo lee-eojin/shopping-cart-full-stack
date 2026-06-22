@@ -36,6 +36,6 @@ describe("useMutation", () => {
     await act(async () => result.current.mutate());
     expect(onSettled).toHaveBeenCalledTimes(1);
     expect(result.current.error).toBeUndefined();
-    expect(result.current.isLoading).toBe(false);
+    expect(result.current.isPending).toBe(false);
   });
 });

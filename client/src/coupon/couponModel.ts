@@ -1,13 +1,14 @@
-import type { Coupon, AssessedCoupon } from "./type.ts";
+import type { AssessedCoupon, CouponId } from "./type.ts";
 
 export const MAX_COUPONS = 2;
 
-export function toggleSelection(selected: Coupon["id"][], id: Coupon["id"]): Coupon["id"][] {
+export function toggleSelection(selected: readonly CouponId[], id: CouponId): CouponId[] {
   if (selected.includes(id)) return selected.filter((value) => value !== id);
-  return [...selected, id].slice(-MAX_COUPONS);
+  if (selected.length >= MAX_COUPONS) return [...selected];
+  return [...selected, id];
 }
 
-export function canSelectMore(selected: Coupon["id"][]): boolean {
+export function canSelectMore(selected: readonly CouponId[]): boolean {
   return selected.length < MAX_COUPONS;
 }
 

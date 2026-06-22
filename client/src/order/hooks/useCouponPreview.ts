@@ -1,10 +1,10 @@
 import { useQuery } from "../../shared/api/query/useQuery";
 import { previewCoupons } from "../orderApi";
-import type { CouponPreview } from "../type";
+import type { CouponPreview, UpdateCouponsRequest } from "../type";
 
-export function useCouponPreview(couponIds: number[]) {
+export function useCouponPreview(couponIds: UpdateCouponsRequest["couponIds"]) {
   return useQuery<CouponPreview>({
     queryKey: ["order", "preview", couponIds],
-    queryFn: () => previewCoupons(couponIds),
+    queryFn: () => previewCoupons({ couponIds }),
   });
 }

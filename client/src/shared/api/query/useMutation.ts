@@ -5,31 +5,42 @@ interface MutationOptions<Vars, Data> {
   onSettled?: () => void | Promise<void>;
 }
 
-interface UseMutationResult<Vars> {
-  mutate: (vars: Vars) => Promise<void>;
-  isLoading: boolean;
+interface UseMutationResult<Vars, Data> {
+  mutate: (vars: Vars) => Promise<void>; // 실패는 error 상태로만 남음
+  mutateAsync: (vars: Vars) => Promise<Data>;
+  isPending: boolean;
   error?: Error;
 }
 
 export function useMutation<Vars = void, Data = unknown>({
   mutationFn,
   onSettled,
-}: MutationOptions<Vars, Data>): UseMutationResult<Vars> {
-  const [isLoading, setIsLoading] = useState(false);
+}: MutationOptions<Vars, Data>): UseMutationResult<Vars, Data> {
+  const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<Error | undefined>(undefined);
 
-  const mutate = async (vars: Vars) => {
-    setIsLoading(true);
+  const mutateAsync = async (vars: Vars): Promise<Data> => {
+    setIsPending(true);
     setError(undefined);
     try {
-      await mutationFn(vars);
+      return await mutationFn(vars);
     } catch (reason) {
-      setError(reason instanceof Error ? reason : new Error(String(reason)));
+      const normalized = reason instanceof Error ? reason : new Error(String(reason));
+      setError(normalized);
+      throw normalized;
     } finally {
-      setIsLoading(false);
+      setIsPending(false);
       await onSettled?.();
     }
   };
 
-  return { mutate, isLoading, error };
+  const mutate = async (vars: Vars): Promise<void> => {
+    try {
+      await mutateAsync(vars);
+    } catch {
+      // fire-and-forget
+    }
+  };
+
+  return { mutate, mutateAsync, isPending, error };
 }

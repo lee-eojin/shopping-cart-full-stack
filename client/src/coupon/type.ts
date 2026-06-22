@@ -1,3 +1,5 @@
+import type { Product } from "../product/types";
+
 interface CouponBase {
   id: number;
   code: string;
@@ -18,7 +20,7 @@ export interface BogoCoupon extends CouponBase {
   discountType: "bogo";
   buyQuantity: number;
   getQuantity: number;
-  applicableProductIds: number[];
+  applicableProductIds: Product["id"][];
 }
 
 export interface FreeShippingCoupon extends CouponBase, MinimumOrderAmountRule {
@@ -33,8 +35,10 @@ export interface PercentageCoupon extends CouponBase {
 }
 
 export type Coupon = FixedCoupon | BogoCoupon | FreeShippingCoupon | PercentageCoupon;
+export type CouponId = Coupon["id"];
+export type CouponDiscountType = Coupon["discountType"];
 
-export type AssessedCoupon = Coupon & { applicable: boolean };
+export type AssessedCoupon = Coupon & { applicable: boolean, standaloneDiscountAmount: number };
 
 export interface PricedCombination {
   couponIds: Coupon["id"][];

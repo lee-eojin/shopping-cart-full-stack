@@ -54,6 +54,12 @@ export class QueryCache {
     }
   }
 
+  setData<T>(key: QueryKey, data: T): void {
+    const entry = this.ensureEntry(key);
+    entry.fetchId += 1;
+    this.transition(entry, { status: "success", data });
+  }
+
   async invalidate(key: QueryKey): Promise<void> {
     const entry = this.entries.get(hashKey(key));
     if (!entry) return;

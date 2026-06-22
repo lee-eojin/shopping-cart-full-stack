@@ -29,6 +29,6 @@ describe("apiRequest", () => {
 
   test("에러 응답에 body가 없으면 기본 메세지로 던진다", async () => {
     server.use(http.get("http://localhost:8080/test", () => new HttpResponse(null, { status: 500 })));
-    await expect(apiRequest("/test")).rejects.toThrow("요청 처리 중 오류가 발생했습니다.");
+    await expect(apiRequest("/test")).rejects.toThrow("요청에 실패했습니다.");
   });
 });
