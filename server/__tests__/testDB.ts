@@ -1,6 +1,6 @@
-import { Database, Product } from '../src/database';
+import { Database, CreateProductRequest } from '../src/database';
 
-export type BodyForTest = Product;
+export type BodyForTest = CreateProductRequest;
 
 export const TestDB: Database = {
   Products: [

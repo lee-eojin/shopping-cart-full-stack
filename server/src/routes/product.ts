@@ -21,7 +21,10 @@ export function createProductRouter(db: Database) {
     withErrorHandling((req, res) => {
       ensureExists(db.Products);
 
-      Validator.validateRequestBody(req.body);
+      Validator.validateRequiredFields(req.body);
+      Validator.validateQuantity(req.body);
+      Validator.validatePrice(req.body);
+      Validator.validateName(req.body);
       const { imageUrl, name, price, quantity } = req.body;
       db.Products.push({ id: db.Products.length + 1, imageUrl, name, price, quantity });
       

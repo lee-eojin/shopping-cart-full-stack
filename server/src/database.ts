@@ -29,7 +29,7 @@ export interface BogoCoupon extends CouponBase {
   discountType: "bogo";
   buyQuantity: number;
   getQuantity: number;
-  applicableProductIds: number[];
+  applicableProductIds: ProductId[];
 }
 
 export interface FreeShippingCoupon extends CouponBase, MinimumOrderAmountRule {
@@ -49,19 +49,19 @@ export type CouponId = Coupon["id"];
 export type CouponDiscountType = Coupon["discountType"];
 
 export interface OrderItem {
-  productId: number;
+  productId: ProductId;
   productPrice: number;
   productQuantity: number;
 }
 
 export interface Order {
   items: OrderItem[];
-  couponIds: number[];
+  couponIds: CouponId[];
   isRemoteArea: boolean;
 }
 
 export type OrderRequestItem = Pick<OrderItem, "productId" | "productQuantity">;
-export type CreateOrderRequest = OrderItem[]
+export type CreateOrderRequest = OrderRequestItem[]
 export type UpdateCouponsRequest = Pick<Order, "couponIds">
 export type UpdateDestinationRequest = Pick<Order, "isRemoteArea">;
 

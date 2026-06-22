@@ -1,4 +1,4 @@
-import { OrderRequestItem, CreateOrderRequest, UpdateDestinationRequest, UpdateCouponsRequest } from "./database";
+import type { CreateOrderRequest, UpdateDestinationRequest, UpdateCouponsRequest } from "./database";
 import { HttpError } from "./httpError";
 
 export interface ProductRequestBody {
@@ -51,7 +51,7 @@ export function validateOrderItems(raw: unknown): asserts raw is CreateOrderRequ
 
 export function validateCouponIds(couponIds: unknown): asserts couponIds is UpdateCouponsRequest["couponIds"] {
   if (!Array.isArray(couponIds)) throw new HttpError(400, "couponIds는 배열이어야 합니다.");
-  if (!couponIds.every(isPositiveInt)) throw new HttpError(400, "productId는 양의 정수여야 합니다.");
+  if (!couponIds.every(isPositiveInt)) throw new HttpError(400, "couponIds는 양의 정수 배열이어야 합니다.");
   if (couponIds.length > 2) throw new HttpError(400, "쿠폰은 최대 2개까지 사용할 수 있습니다.");
   if (new Set(couponIds).size !== couponIds.length) throw new HttpError(400, "중복된 쿠폰이 있습니다.");
 }

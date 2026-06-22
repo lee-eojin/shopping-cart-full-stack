@@ -1,6 +1,6 @@
 import express from "express";
 import { Coupon, Database } from "../database";
-import { assessCoupon, pickBestCombination, type OrderContext, calcComboDiscount, type PricedCombination } from "../couponRules";
+import { assessCoupon, pickBestCombination, calcComboDiscount, type OrderContext, type PricedCombination } from "../couponRules";
 import { ensureExists } from "../httpError";
 import { withErrorHandling } from "./withErrorHandling";
 
@@ -30,7 +30,7 @@ export function createCouponRouter(db: Database, clock: Clock = () => new Date()
         const applicable = assessCoupon(coupon, ctx);
         return { ...coupon, applicable, standaloneDiscountAmount: applicable ? calcComboDiscount([coupon], ctx) : 0 };
       });
-      
+
       res.status(200).json({ coupons, primaryPrice: pickBestCombination(db.Coupons, ctx)});
     }),
   );
