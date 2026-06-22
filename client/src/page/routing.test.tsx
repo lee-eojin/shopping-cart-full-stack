@@ -4,26 +4,32 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 
-import { resetCart } from "../mocks/handlers.ts";
+import { resetCart, resetOrder } from "../mocks/handlers.ts";
 import { QueryCache } from "../shared/api/query/queryCache.ts";
 import { QueryCacheProvider } from "../shared/api/query/QueryCacheProvider.tsx";
+import { OverlayProvider } from "../shared/overlay/OverlayProvider.tsx";
 
 import { CartPage } from "./CartPage.tsx";
 import { OrderConfirmPage } from "./OrderConfirmPage.tsx";
 
 beforeEach(() => localStorage.clear());
-afterEach(resetCart);
+afterEach(() => {
+  resetCart();
+  resetOrder();
+});
 
 function renderApp() {
   const cache = new QueryCache();
   return render(
     <QueryCacheProvider cache={cache}>
-      <MemoryRouter initialEntries={["/"]}>
-        <Routes>
-          <Route path="/" element={<CartPage />} />
-          <Route path="/order" element={<OrderConfirmPage />} />
-        </Routes>
-      </MemoryRouter>
+      <OverlayProvider>
+        <MemoryRouter initialEntries={["/"]}>
+          <Routes>
+            <Route path="/" element={<CartPage />} />
+            <Route path="/order" element={<OrderConfirmPage />} />
+          </Routes>
+        </MemoryRouter>
+      </OverlayProvider>
     </QueryCacheProvider>,
   );
 }

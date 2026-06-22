@@ -1,8 +1,9 @@
 import styled from "@emotion/styled";
-import { useOptimistic, useTransition } from "react";
+import { useOptimistic, useRef, useTransition } from "react";
 
 import { submitOrder } from "../../order/orderApi.ts";
 import type { OrderRequestItem } from "../../order/type.ts";
+import { useQueryCache } from "../../shared/api/query/queryCacheContext.ts";
 import { ErrorMessage } from "../../shared/components/feedback/ErrorMessage.tsx";
 import { Spinner } from "../../shared/components/feedback/Spinner.tsx";
 import { Stack } from "../../shared/components/layout/Stack.tsx";
@@ -28,13 +29,22 @@ export function CartContainer({ onCheckout }: CartContainerProps) {
   const { isSelected, select, setAll } = useSelection();
   const [, startTransition] = useTransition();
   const [optimisticItems, applyOptimistic] = useOptimistic(items ?? [], applyCartAction);
+  const cache = useQueryCache();
+  const submitting = useRef(false);
 
   const checkout = useAsyncAction(async () => {
-    const orderItems: OrderRequestItem[] = optimisticItems
-      .filter((item) => isSelected(item.id))
-      .map((item) => ({ productId: item.id, productQuantity: item.quantity }));
-    await submitOrder(orderItems);
-    onCheckout();
+    if (submitting.current) return;
+    submitting.current = true;
+    try {
+      const orderItems: OrderRequestItem[] = optimisticItems
+        .filter((item) => isSelected(item.id))
+        .map((item) => ({ productId: item.id, productQuantity: item.quantity }));
+      const created = await submitOrder(orderItems);
+      cache.setData(["order"], created);
+      onCheckout(); // navigate("/order")
+    } finally {
+      submitting.current = false;
+    }
   });
 
   if (isLoading) return <Spinner />;
