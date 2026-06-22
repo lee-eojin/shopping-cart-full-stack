@@ -1,9 +1,11 @@
 import { createContext, use, type ReactNode } from "react";
 
-export type OverlayController<T> = (props: { close: (value: T) => void }) => ReactNode;
+export type OverlayController<T> = (props: { close: (value: T | null) => void }) => ReactNode;
 
 export interface OverlayContextValue {
-  openAsync: <T>(controller: OverlayController<T>) => Promise<T>;
+  openAsync: <T>(controller: OverlayController<T>) => Promise<T | null>;
+  //RouteOberlay Cleanup
+  closeAll: () => void;
 }
 
 export const OverlayContext = createContext<OverlayContextValue | null>(null);
