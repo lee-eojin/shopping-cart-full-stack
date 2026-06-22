@@ -5,7 +5,7 @@ import { type ReactNode } from "react";
 import { MemoryRouter } from "react-router-dom";
 
 import { resetCart, resetOrder } from "../mocks/handlers.ts";
-import { submitOrder } from "../order/orderApi.ts";
+import { submitOrder, updateCoupons } from "../order/orderApi.ts";
 import { QueryCache } from "../shared/api/query/queryCache.ts";
 import { QueryCacheProvider } from "../shared/api/query/QueryCacheProvider.tsx";
 import { OverlayProvider } from "../shared/overlay/OverlayProvider.tsx";
@@ -30,7 +30,6 @@ function renderConfirm() {
   return render(<OrderConfirmPage />, { wrapper });
 }
 
-// 주문서를 먼저 만든다(POST /order). 10000*1 + 20000*2 = 50000, 배송비 3000 => 총 53000.
 async function seedOrder() {
   await submitOrder([
     { productId: 1, productQuantity: 1 },
@@ -62,6 +61,16 @@ describe("OrderConfirmPage", () => {
 
     expect(screen.getByRole("status")).toBeInTheDocument();
     await waitFor(() => expect(screen.queryByRole("status")).not.toBeInTheDocument());
+  });
+
+  test("BOGO 적용 시 결제 수량과 증정 수량을 구분해 보여준다", async () => {
+    await seedOrder();
+    await updateCoupons({ couponIds: [2] });
+    renderConfirm();
+
+    await waitFor(() => expect(screen.getByText("증정 수량 1")).toBeInTheDocument());
+    expect(screen.getByText("결제 수량 2")).toBeInTheDocument();
+    expect(screen.getByText("총 2종류 · 결제 3개 · 수령 4개")).toBeInTheDocument();
   });
 
   test("주문서가 없으면 에러와 재시도 버튼을 보여준다", async () => {

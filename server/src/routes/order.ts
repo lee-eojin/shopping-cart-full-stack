@@ -1,7 +1,14 @@
 import express from "express";
 import type { Coupon, CouponId, Database, Order, OrderItem, Product, UpdateCouponsRequest } from "../database";
 import { validateOrderItems, validateCouponIds, validateIsRemoteArea } from "../validation";
-import { assessCoupon, calcAmounts, pickBestCombination, type OrderAmounts, type OrderContext } from "../couponRules";
+import {
+  assessCoupon,
+  calcAmounts,
+  calcBonusQuantity,
+  pickBestCombination,
+  type OrderAmounts,
+  type OrderContext,
+} from "../couponRules";
 import { HttpError, ensureExists } from "../httpError";
 import { withErrorHandling } from "./withErrorHandling";
 
@@ -10,6 +17,7 @@ type Clock = () => Date;
 interface OrderItemResponse extends OrderItem {
   productName: Product["name"];
   imageUrl: Product["imageUrl"];
+  bonusQuantity: number;
 }
 
 type OrderResponse = Omit<Order, "items"> & {
@@ -35,21 +43,30 @@ export function createOrderRouter(db: Database, clock: Clock = () => new Date())
   const findCoupon = (coupons: readonly Coupon[], id: CouponId): Coupon | undefined =>
     coupons.find((coupon) => coupon.id === id);
 
-  const toItemResponse = (products: readonly Product[], item: OrderItem): OrderItemResponse => {
+  const toItemResponse = (
+    products: readonly Product[],
+    item: OrderItem,
+    bonusQuantity: number,
+  ): OrderItemResponse => {
     const product = products.find((candidate) => candidate.id === item.productId);
     ensureExists(product);
-    return { ...item, productName: product.name, imageUrl: product.imageUrl };
+    return { ...item, productName: product.name, imageUrl: product.imageUrl, bonusQuantity };
   };
   const orderResponse = (
     order: Order,
     products: readonly Product[],
     coupons: readonly Coupon[],
     ctx: OrderContext,
-  ): OrderResponse => ({
-    ...order,
-    items: order.items.map((item) => toItemResponse(products, item)),
-    ...calcAmounts(ctx, order.couponIds, coupons),
-  });
+  ): OrderResponse => {
+    const selectedCoupons = coupons.filter((coupon) => order.couponIds.includes(coupon.id));
+    return {
+      ...order,
+      items: order.items.map((item) =>
+        toItemResponse(products, item, calcBonusQuantity(item, selectedCoupons, order.items)),
+      ),
+      ...calcAmounts(ctx, order.couponIds, coupons),
+    };
+  };
 
   function requireUsableCouponIds(
     raw: unknown,
@@ -123,8 +140,17 @@ export function createOrderRouter(db: Database, clock: Clock = () => new Date())
       const coupons = db.Coupons;
       const ctx = context(order, clock());
       const couponIds = requireUsableCouponIds(parseCouponIds(req.query.couponIds), coupons, ctx);
-      const { couponDiscountAmount, totalPaymentAmount } = calcAmounts(ctx, couponIds, coupons);
-      res.status(200).json({ couponDiscountAmount, totalPaymentAmount });
+      const { couponDiscountAmount, bonusProductAmount, totalBenefitAmount, totalPaymentAmount } = calcAmounts(
+        ctx,
+        couponIds,
+        coupons,
+      );
+      res.status(200).json({
+        couponDiscountAmount,
+        bonusProductAmount,
+        totalBenefitAmount,
+        totalPaymentAmount,
+      });
     }),
   );
 

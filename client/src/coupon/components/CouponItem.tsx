@@ -22,8 +22,11 @@ export function CouponItem({ coupon, checked, disabled, onToggle }: CouponItemPr
         />
         {coupon.description}
       </label>
-      {coupon.applicable && (
+      {coupon.applicable && coupon.standaloneDiscountAmount > 0 && (
         <Meta>할인 금액: {formatPrice(coupon.standaloneDiscountAmount)}</Meta>
+      )}
+      {coupon.applicable && coupon.standaloneBonusProductAmount > 0 && (
+        <Meta>증정 혜택: {formatPrice(coupon.standaloneBonusProductAmount)}</Meta>
       )}
       <Meta>만료일: {coupon.expirationDate}</Meta>
       {"minimumOrderAmount" in coupon && (

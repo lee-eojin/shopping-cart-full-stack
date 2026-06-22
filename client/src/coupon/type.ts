@@ -38,11 +38,18 @@ export type Coupon = FixedCoupon | BogoCoupon | FreeShippingCoupon | PercentageC
 export type CouponId = Coupon["id"];
 export type CouponDiscountType = Coupon["discountType"];
 
-export type AssessedCoupon = Coupon & { applicable: boolean, standaloneDiscountAmount: number };
+export type AssessedCoupon = Coupon & {
+  applicable: boolean;
+  standaloneDiscountAmount: number;
+  standaloneBonusProductAmount: number;
+  standaloneTotalBenefitAmount: number;
+};
 
 export interface PricedCombination {
   couponIds: Coupon["id"][];
   couponDiscountAmount: number;
+  bonusProductAmount: number;
+  totalBenefitAmount: number;
 }
 
 export interface CouponsResponse {

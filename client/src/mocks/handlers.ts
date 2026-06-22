@@ -13,8 +13,10 @@ const ORDER_URL = `${import.meta.env.VITE_API_BASE_URL}/order`;
 
 let cart = [...initialCart];
 
+type MockOrderItem = Omit<OrderItemResponse, "bonusQuantity">;
+
 interface MockOrder {
-  items: OrderItemResponse[];
+  items: MockOrderItem[];
   couponIds: number[];
   isRemoteArea: boolean;
 }
@@ -24,26 +26,28 @@ const FREE_SHIPPING_THRESHOLD = 100_000;
 const BASE_SHIPPING_FEE = 3_000;
 const REMOTE_AREA_SURCHARGE = 3_000;
 
-function orderAmountOf(items: readonly OrderItemResponse[]): number {
+function orderAmountOf(items: readonly MockOrderItem[]): number {
   return items.reduce((sum, item) => sum + item.productPrice * item.productQuantity, 0);
 }
 
-function shippingFeeOf(items: readonly OrderItemResponse[], isRemoteArea: boolean): number {
+function shippingFeeOf(items: readonly MockOrderItem[], isRemoteArea: boolean): number {
   const amount = orderAmountOf(items);
   if (amount === 0) return 0;
   if (amount >= FREE_SHIPPING_THRESHOLD) return 0;
   return BASE_SHIPPING_FEE + (isRemoteArea ? REMOTE_AREA_SURCHARGE : 0);
 }
 
-function bogoTarget(coupon: Extract<Coupon, { discountType: "bogo" }>, items: readonly OrderItemResponse[]) {
-  const threshold = coupon.buyQuantity + coupon.getQuantity;
+function bogoTarget(coupon: Extract<Coupon, { discountType: "bogo" }>, items: readonly MockOrderItem[]) {
   return items
-    .filter((item) => coupon.applicableProductIds.includes(item.productId) && item.productQuantity >= threshold)
+    .filter(
+      (item) =>
+        coupon.applicableProductIds.includes(item.productId) && item.productQuantity >= coupon.buyQuantity,
+    )
     .sort((a, b) => b.productPrice - a.productPrice)[0];
 }
 
 // mock: 시간대 로직은 생략
-function assess(coupon: Coupon, items: readonly OrderItemResponse[], isRemoteArea: boolean): boolean {
+function assess(coupon: Coupon, items: readonly MockOrderItem[], isRemoteArea: boolean): boolean {
   const amount = orderAmountOf(items);
   if ("minimumOrderAmount" in coupon && amount < coupon.minimumOrderAmount) return false;
   switch (coupon.discountType) {
@@ -58,28 +62,50 @@ function assess(coupon: Coupon, items: readonly OrderItemResponse[], isRemoteAre
   }
 }
 
-function comboDiscount(selected: readonly Coupon[], items: readonly OrderItemResponse[], isRemoteArea: boolean): number {
-  const fixedLike = selected.reduce((sum, coupon) => {
+function comboBenefits(selected: readonly Coupon[], items: readonly MockOrderItem[], isRemoteArea: boolean) {
+  const fixed = selected.reduce((sum, coupon) => {
     if (coupon.discountType === "fixed") return sum + coupon.discountAmount;
-    if (coupon.discountType === "bogo") return sum + (bogoTarget(coupon, items)?.productPrice ?? 0) * coupon.getQuantity;
     return sum;
   }, 0);
-  const base = Math.max(0, orderAmountOf(items) - fixedLike);
+  const base = Math.max(0, orderAmountOf(items) - fixed);
   const percentage = selected.reduce((sum, coupon) => {
     if (coupon.discountType !== "percentage") return sum;
     return sum + Math.min(Math.floor((base * coupon.discountRate) / 100), coupon.maximumDiscountAmount);
   }, 0);
   const shipping = selected.some((coupon) => coupon.discountType === "freeShipping") ? shippingFeeOf(items, isRemoteArea) : 0;
-  return fixedLike + percentage + shipping;
+  const couponDiscountAmount = fixed + percentage + shipping;
+  const bonusProductAmount = selected.reduce((sum, coupon) => {
+    if (coupon.discountType !== "bogo") return sum;
+    const target = bogoTarget(coupon, items);
+    return sum + (target?.productPrice ?? 0) * coupon.getQuantity;
+  }, 0);
+  return {
+    couponDiscountAmount,
+    bonusProductAmount,
+    totalBenefitAmount: couponDiscountAmount + bonusProductAmount,
+  };
+}
+
+function bonusQuantityOf(item: MockOrderItem, selected: readonly Coupon[], items: readonly MockOrderItem[]): number {
+  return selected.reduce((quantity, coupon) => {
+    if (coupon.discountType !== "bogo") return quantity;
+    return bogoTarget(coupon, items)?.productId === item.productId
+      ? quantity + coupon.getQuantity
+      : quantity;
+  }, 0);
 }
 
 function toResponse(value: MockOrder): Order {
   const orderAmount = orderAmountOf(value.items);
   const selected = coupons.filter((coupon) => value.couponIds.includes(coupon.id));
-  const couponDiscountAmount = comboDiscount(selected, value.items, value.isRemoteArea);
+  const benefits = comboBenefits(selected, value.items, value.isRemoteArea);
   const shippingFee = shippingFeeOf(value.items, value.isRemoteArea);
-  const totalPaymentAmount = Math.max(0, orderAmount - couponDiscountAmount + shippingFee);
-  return { ...value, orderAmount, couponDiscountAmount, shippingFee, totalPaymentAmount };
+  const totalPaymentAmount = Math.max(0, orderAmount - benefits.couponDiscountAmount + shippingFee);
+  const items = value.items.map((item) => ({
+    ...item,
+    bonusQuantity: bonusQuantityOf(item, selected, value.items),
+  }));
+  return { ...value, items, orderAmount, ...benefits, shippingFee, totalPaymentAmount };
 }
 
 export const handlers = [
@@ -109,22 +135,35 @@ export const handlers = [
   }),
 
   http.get(COUPONS_URL, () => {
-    const base = order ?? { items: [], couponIds: [], isRemoteArea: false };
+    const base: MockOrder = order ?? { items: [], couponIds: [], isRemoteArea: false };
     const assessed: AssessedCoupon[] = coupons.map((coupon) => {
       const applicable = assess(coupon, base.items, base.isRemoteArea);
+      const benefits = applicable
+        ? comboBenefits([coupon], base.items, base.isRemoteArea)
+        : { couponDiscountAmount: 0, bonusProductAmount: 0, totalBenefitAmount: 0 };
       return {
         ...coupon,
         applicable,
-        standaloneDiscountAmount: applicable ? comboDiscount([coupon], base.items, base.isRemoteArea) : 0,
+        standaloneDiscountAmount: benefits.couponDiscountAmount,
+        standaloneBonusProductAmount: benefits.bonusProductAmount,
+        standaloneTotalBenefitAmount: benefits.totalBenefitAmount,
       };
     });
-    const response: CouponsResponse = { coupons: assessed, primaryPrice: { couponIds: [], couponDiscountAmount: 0 } };
+    const response: CouponsResponse = {
+      coupons: assessed,
+      primaryPrice: {
+        couponIds: [],
+        couponDiscountAmount: 0,
+        bonusProductAmount: 0,
+        totalBenefitAmount: 0,
+      },
+    };
     return HttpResponse.json(response);
   }),
 
   http.post(ORDER_URL, async ({ request }) => {
     const body = (await request.json()) as CreateOrderRequest;
-    const items: OrderItemResponse[] = body.map((requested) => {
+    const items: MockOrderItem[] = body.map((requested) => {
       const product = products.find((candidate) => candidate.id === requested.productId)!;
       return {
         productId: requested.productId,
@@ -144,7 +183,7 @@ export const handlers = [
   }),
 
   http.get(`${ORDER_URL}/coupons/preview`, ({ request }) => {
-    const base = order ?? { items: [], couponIds: [], isRemoteArea: false };
+    const base: MockOrder = order ?? { items: [], couponIds: [], isRemoteArea: false };
     const raw = new URL(request.url).searchParams.get("couponIds") ?? "";
     const ids = raw ? raw.split(",").map(Number) : [];
     const selected = coupons.filter((coupon) => ids.includes(coupon.id));
@@ -153,10 +192,10 @@ export const handlers = [
     if (selected.some((coupon) => !assess(coupon, base.items, base.isRemoteArea)))
       return HttpResponse.json({ errorMessage: "적용할 수 없는 쿠폰이 포함되어 있습니다.", code: "COUPON_NOT_APPLICABLE" }, { status: 400 });
     const orderAmount = orderAmountOf(base.items);
-    const couponDiscountAmount = comboDiscount(selected, base.items, base.isRemoteArea);
+    const benefits = comboBenefits(selected, base.items, base.isRemoteArea);
     const shippingFee = shippingFeeOf(base.items, base.isRemoteArea);
-    const totalPaymentAmount = Math.max(0, orderAmount - couponDiscountAmount + shippingFee);
-    return HttpResponse.json({ couponDiscountAmount, totalPaymentAmount });
+    const totalPaymentAmount = Math.max(0, orderAmount - benefits.couponDiscountAmount + shippingFee);
+    return HttpResponse.json({ ...benefits, totalPaymentAmount });
   }),
 
   http.patch(`${ORDER_URL}/coupons`, async ({ request }) => {

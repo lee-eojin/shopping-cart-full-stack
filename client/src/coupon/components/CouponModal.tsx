@@ -82,9 +82,11 @@ export function CouponModal({ coupons, initialSelected, onApply, onClose }: Coup
         })}
       </ul>
       {apply.error && <p role="alert">쿠폰 적용에 실패했습니다.</p>}
-      {previewError && <p role="alert">할인 금액을 불러오지 못했습니다.</p>}
+      {previewError && <p role="alert">쿠폰 혜택을 불러오지 못했습니다.</p>}
       <button type="button" disabled={apply.isPending || isPriceStale} onClick={() => apply.run()}>
-        {isPriceStale ? "할인 금액 계산 중…" : `총 ${formatPrice(preview?.couponDiscountAmount ?? 0)} 할인 쿠폰 사용하기`}
+        {isPriceStale
+          ? "쿠폰 혜택 계산 중…"
+          : `총 ${formatPrice(preview?.totalBenefitAmount ?? 0)} 할인 쿠폰 사용하기`}
       </button>
     </Dialog>
   );

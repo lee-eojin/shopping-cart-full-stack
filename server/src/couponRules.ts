@@ -9,13 +9,23 @@ export interface OrderContext {
 export interface PricedCombination {
   couponIds: Coupon["id"][];
   couponDiscountAmount: number;
+  bonusProductAmount: number;
+  totalBenefitAmount: number;
 }
 
 export interface OrderAmounts {
   orderAmount: number;
   couponDiscountAmount: number;
+  bonusProductAmount: number;
+  totalBenefitAmount: number;
   shippingFee: number;
   totalPaymentAmount: number;
+}
+
+interface CouponBenefits {
+  couponDiscountAmount: number;
+  bonusProductAmount: number;
+  totalBenefitAmount: number;
 }
 
 const FREE_SHIPPING_THRESHOLD = 100_000;
@@ -30,7 +40,10 @@ function seoulWallClock(now: Date): { date: string; time: string } {
   }).formatToParts(now);
 
   const at = (type: string) => parts.find((p) => p.type === type)!.value;
-  return { date: `${at("year")}-${at("month")}-${at("day")}-${at("day")}`, time: `${at("hour")}:${at("minute")}:${at("second")}` };
+  return {
+    date: `${at("year")}-${at("month")}-${at("day")}`,
+    time: `${at("hour")}:${at("minute")}:${at("second")}`,
+  };
 }
 
 export function calcOrderAmount(items: readonly OrderItem[]): number {
@@ -48,14 +61,16 @@ function isExpired(coupon: Coupon, now: Date): boolean {
 }
 
 function isWithinAvailableTime(coupon: PercentageCoupon, now: Date): boolean {
-  const current = seoulWallClock(now).time
+  const current = seoulWallClock(now).time;
   return coupon.availableTime.start <= current && current <= coupon.availableTime.end;
 }
 
 function bogoTargetItem(coupon: BogoCoupon, items: readonly OrderItem[]): OrderItem | undefined {
-  const threshold = coupon.buyQuantity + coupon.getQuantity;
   return items
-    .filter((item) => coupon.applicableProductIds.includes(item.productId) && item.productQuantity >= threshold)
+    .filter(
+      (item) =>
+        coupon.applicableProductIds.includes(item.productId) && item.productQuantity >= coupon.buyQuantity,
+    )
     .sort((a, b) => b.productPrice - a.productPrice)[0];
 }
 
@@ -87,15 +102,9 @@ export function assessCoupon(coupon: Coupon, ctx: OrderContext): boolean {
   }
 }
 
-function bogoDiscount(coupon: BogoCoupon, items: readonly OrderItem[]): number {
-  const target = bogoTargetItem(coupon, items);
-  return target ? target.productPrice * coupon.getQuantity : 0;
-}
-
-function productDiscount(coupons: readonly Coupon[], items: readonly OrderItem[]): number {
+function fixedDiscount(coupons: readonly Coupon[]): number {
   return coupons.reduce((sum, coupon) => {
     if (coupon.discountType === "fixed") return sum + coupon.discountAmount;
-    if (coupon.discountType === "bogo") return sum + bogoDiscount(coupon, items);
     return sum;
   }, 0);
 }
@@ -108,12 +117,36 @@ function percentageDiscount(coupons: readonly Coupon[], base: number): number {
   }, 0);
 }
 
-export function calcComboDiscount(coupons: readonly Coupon[], ctx: OrderContext): number {
+export function calcBonusQuantity(
+  item: OrderItem,
+  coupons: readonly Coupon[],
+  items: readonly OrderItem[],
+): number {
+  return coupons.reduce((quantity, coupon) => {
+    if (coupon.discountType !== "bogo") return quantity;
+    return bogoTargetItem(coupon, items)?.productId === item.productId
+      ? quantity + coupon.getQuantity
+      : quantity;
+  }, 0);
+}
+
+export function calcComboBenefits(coupons: readonly Coupon[], ctx: OrderContext): CouponBenefits {
   const orderAmount = calcOrderAmount(ctx.items);
-  const fixedLike = productDiscount(coupons, ctx.items);
-  const percentage = percentageDiscount(coupons, orderAmount - fixedLike);
+  const fixed = fixedDiscount(coupons);
+  const percentage = percentageDiscount(coupons, Math.max(0, orderAmount - fixed));
   const shipping = coupons.some((coupon) => coupon.discountType === "freeShipping") ? calcShippingFee(ctx) : 0;
-  return fixedLike + percentage + shipping;
+  const couponDiscountAmount = fixed + percentage + shipping;
+  const bonusProductAmount = coupons.reduce((sum, coupon) => {
+    if (coupon.discountType !== "bogo") return sum;
+    const target = bogoTargetItem(coupon, ctx.items);
+    return sum + (target ? target.productPrice * coupon.getQuantity : 0);
+  }, 0);
+
+  return {
+    couponDiscountAmount,
+    bonusProductAmount,
+    totalBenefitAmount: couponDiscountAmount + bonusProductAmount,
+  };
 }
 
 function combinationsUpToTwo(coupons: readonly Coupon[]): Coupon[][] {
@@ -126,10 +159,11 @@ function combinationsUpToTwo(coupons: readonly Coupon[]): Coupon[][] {
   return combos;
 }
 
-// 고민: 내맘대로 룰을 정해도 되는걸까?
 export function isBetter(current: PricedCombination, best: PricedCombination): boolean {
-  if (current.couponDiscountAmount !== best.couponDiscountAmount) return current.couponDiscountAmount > best.couponDiscountAmount;
-  if (current.couponIds.length ! == best.couponIds.length) return current.couponIds.length < best.couponIds.length;
+  if (current.totalBenefitAmount !== best.totalBenefitAmount)
+    return current.totalBenefitAmount > best.totalBenefitAmount;
+  if (current.couponIds.length !== best.couponIds.length)
+    return current.couponIds.length < best.couponIds.length;
 
   for (let i = 0; i < current.couponIds.length; i += 1) {
     if (current.couponIds[i] !== best.couponIds[i]) return current.couponIds[i] < best.couponIds[i];
@@ -140,12 +174,16 @@ export function isBetter(current: PricedCombination, best: PricedCombination): b
 
 export function pickBestCombination(coupons: readonly Coupon[], ctx: OrderContext): PricedCombination {
   const applicable = coupons.filter((coupon) => assessCoupon(coupon, ctx));
-  if (applicable.length === 0) return { couponIds: [], couponDiscountAmount: 0 };
+  if (applicable.length === 0)
+    return { couponIds: [], couponDiscountAmount: 0, bonusProductAmount: 0, totalBenefitAmount: 0 };
   return combinationsUpToTwo(applicable)
-    .map((combo) => ({
-      couponIds: combo.map((coupon) => coupon.id).sort((x, y) => x - y),
-      couponDiscountAmount: calcComboDiscount(combo, ctx),
-    }))
+    .map((combo) => {
+      const benefits = calcComboBenefits(combo, ctx);
+      return {
+        couponIds: combo.map((coupon) => coupon.id).sort((x, y) => x - y),
+        ...benefits,
+      };
+    })
     .reduce((best, current) => (isBetter(current, best) ? current : best));
 }
 
@@ -156,8 +194,8 @@ export function calcAmounts(
 ): OrderAmounts {
   const orderAmount = calcOrderAmount(ctx.items);
   const selected = coupons.filter((coupon) => couponIds.includes(coupon.id));
-  const couponDiscountAmount = calcComboDiscount(selected, ctx);
+  const benefits = calcComboBenefits(selected, ctx);
   const shippingFee = calcShippingFee(ctx);
-  const totalPaymentAmount = Math.max(0, orderAmount - couponDiscountAmount + shippingFee);
-  return { orderAmount, couponDiscountAmount, shippingFee, totalPaymentAmount };
+  const totalPaymentAmount = Math.max(0, orderAmount - benefits.couponDiscountAmount + shippingFee);
+  return { orderAmount, ...benefits, shippingFee, totalPaymentAmount };
 }

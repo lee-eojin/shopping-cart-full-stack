@@ -75,21 +75,26 @@ export function OrderConfirmContainer({ onProceed }: OrderConfirmContainerProps)
   }
 
   const itemKinds = currentOrder.items.length;
-  const totalQuantity = currentOrder.items.reduce((sum, item) => sum + item.productQuantity, 0);
+  const paidQuantity = currentOrder.items.reduce((sum, item) => sum + item.productQuantity, 0);
+  const bonusQuantity = currentOrder.items.reduce((sum, item) => sum + item.bonusQuantity, 0);
+  const receivedQuantity = paidQuantity + bonusQuantity;
   const isRecalculating = isPending || changeDestination.isPending;
 
   return (
-    <Stack gap={24}>
-      <p>총 {itemKinds}종류의 상품 {totalQuantity}개를 주문합니다.</p>
+    <Stack gap={2}>
+      <p>총 {itemKinds}종류의 상품{paidQuantity}개를 주문합니다.</p>
+      <p>(BOGO쿠폰 적용 포함 수령 총{receivedQuantity}개)</p>
+      <p>최종 결제 금액을 확인해 주세요.</p>
       <ItemList>
         {currentOrder.items.map((item) => (
           <li key={item.productId}>
             <Media gap={12}>
               <img src={item.imageUrl} alt={item.productName} width={64} height={64} />
-              <Stack gap={4}>
+              <Stack gap={8}>
                 <span>{item.productName}</span>
                 <span>{formatPrice(item.productPrice)}</span>
-                <span>수량 {item.productQuantity}</span>
+                <span>결제 수량 {item.productQuantity}</span>
+                {item.bonusQuantity > 0 && <span>증정 수량 {item.bonusQuantity}</span>}
               </Stack>
             </Media>
           </li>
@@ -116,6 +121,7 @@ export function OrderConfirmContainer({ onProceed }: OrderConfirmContainerProps)
         <OrderSummary
           orderAmount={currentOrder.orderAmount}
           couponDiscountAmount={currentOrder.couponDiscountAmount}
+          bonusProductAmount={currentOrder.bonusProductAmount}
           shippingFee={currentOrder.shippingFee}
           total={currentOrder.totalPaymentAmount}
         />
