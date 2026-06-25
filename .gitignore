@@ -1,0 +1,5 @@
+# macOS
+.DS_Store
+
+# Local-only docs
+docs/STEP4_IMPLEMENTATION_PLAN.md
