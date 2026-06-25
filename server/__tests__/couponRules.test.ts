@@ -49,4 +49,10 @@ describe("BOGO 증정", () => {
       totalPaymentAmount: 81_000,
     });
   });
+
+  test("존재하지 않는 쿠폰 ID는 조용히 무시하지 않는다", () => {
+    const { ctx } = context(2);
+
+    expect(() => calcAmounts(ctx, [999], [bogo])).toThrow("존재하지 않는 쿠폰 ID가 포함되어 있습니다.");
+  });
 });

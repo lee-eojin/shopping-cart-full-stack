@@ -156,14 +156,13 @@ function combinationsUpToTwo(coupons: readonly Coupon[]): Coupon[][] {
       combos.push([coupons[i], coupons[j]]);
     }
   }
+
   return combos;
 }
 
 export function isBetter(current: PricedCombination, best: PricedCombination): boolean {
-  if (current.totalBenefitAmount !== best.totalBenefitAmount)
-    return current.totalBenefitAmount > best.totalBenefitAmount;
-  if (current.couponIds.length !== best.couponIds.length)
-    return current.couponIds.length < best.couponIds.length;
+  if (current.totalBenefitAmount !== best.totalBenefitAmount) return current.totalBenefitAmount > best.totalBenefitAmount;
+  if (current.couponIds.length !== best.couponIds.length) return current.couponIds.length < best.couponIds.length;
 
   for (let i = 0; i < current.couponIds.length; i += 1) {
     if (current.couponIds[i] !== best.couponIds[i]) return current.couponIds[i] < best.couponIds[i];
@@ -174,8 +173,7 @@ export function isBetter(current: PricedCombination, best: PricedCombination): b
 
 export function pickBestCombination(coupons: readonly Coupon[], ctx: OrderContext): PricedCombination {
   const applicable = coupons.filter((coupon) => assessCoupon(coupon, ctx));
-  if (applicable.length === 0)
-    return { couponIds: [], couponDiscountAmount: 0, bonusProductAmount: 0, totalBenefitAmount: 0 };
+  if (applicable.length === 0) return { couponIds: [], couponDiscountAmount: 0, bonusProductAmount: 0, totalBenefitAmount: 0 };
   return combinationsUpToTwo(applicable)
     .map((combo) => {
       const benefits = calcComboBenefits(combo, ctx);
@@ -194,6 +192,7 @@ export function calcAmounts(
 ): OrderAmounts {
   const orderAmount = calcOrderAmount(ctx.items);
   const selected = coupons.filter((coupon) => couponIds.includes(coupon.id));
+  if (selected.length !== couponIds.length) throw new Error("존재하지 않는 쿠폰 ID가 포함되어 있습니다.");
   const benefits = calcComboBenefits(selected, ctx);
   const shippingFee = calcShippingFee(ctx);
   const totalPaymentAmount = Math.max(0, orderAmount - benefits.couponDiscountAmount + shippingFee);
