@@ -1,8 +1,15 @@
-import { assessCoupon, calcAmounts, calcBonusQuantity } from "../src/couponRules";
-import { DB, type BogoCoupon, type OrderItem } from "../src/database";
+import {
+  assessCoupon,
+  calcAmounts,
+  calcBonusQuantity,
+  calcShippingFee,
+  pickBestCombination,
+} from "../src/couponRules";
+import { DB, type BogoCoupon, type Coupon, type OrderItem } from "../src/database";
 
 const NOW = new Date("2026-06-15T05:00:00+09:00");
 const bogo = DB.Coupons!.find((coupon): coupon is BogoCoupon => coupon.discountType === "bogo")!;
+const findCoupon = (id: number): Coupon => DB.Coupons!.find((coupon) => coupon.id === id)!;
 
 function context(productQuantity: number) {
   const item: OrderItem = {
@@ -54,5 +61,49 @@ describe("BOGO 증정", () => {
     const { ctx } = context(2);
 
     expect(() => calcAmounts(ctx, [999], [bogo])).toThrow("존재하지 않는 쿠폰 ID가 포함되어 있습니다.");
+  });
+});
+
+describe("쿠폰 금액 계산", () => {
+  test("정액 쿠폰을 먼저 차감한 뒤 남은 금액에 정률 쿠폰을 적용한다", () => {
+    const ctx = {
+      items: [{ productId: 1, productPrice: 120_000, productQuantity: 1 }],
+      isRemoteArea: false,
+      now: NOW,
+    };
+
+    expect(calcAmounts(ctx, [1, 4], [findCoupon(1), findCoupon(4)])).toMatchObject({
+      orderAmount: 120_000,
+      couponDiscountAmount: 39_500,
+      shippingFee: 0,
+      totalPaymentAmount: 80_500,
+    });
+  });
+
+  test("최적 조합은 결제 할인과 증정 상품 가치를 합친 총 혜택으로 고른다", () => {
+    const { ctx } = context(2);
+
+    expect(pickBestCombination(DB.Coupons!, ctx)).toEqual({
+      couponIds: [2, 4],
+      couponDiscountAmount: 23_400,
+      bonusProductAmount: 39_000,
+      totalBenefitAmount: 62_400,
+    });
+  });
+
+  test("주문 금액 10만 원 이상이면 도서산간 추가 배송비도 면제한다", () => {
+    const below = {
+      items: [{ productId: 1, productPrice: 99_999, productQuantity: 1 }],
+      isRemoteArea: true,
+      now: NOW,
+    };
+    const threshold = {
+      items: [{ productId: 1, productPrice: 100_000, productQuantity: 1 }],
+      isRemoteArea: true,
+      now: NOW,
+    };
+
+    expect(calcShippingFee(below)).toBe(6_000);
+    expect(calcShippingFee(threshold)).toBe(0);
   });
 });
