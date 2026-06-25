@@ -58,5 +58,5 @@ export function validateCouponIds(couponIds: unknown): asserts couponIds is Upda
 
 export function validateIsRemoteArea(body: unknown): asserts body is UpdateDestinationRequest {
   if (!body || typeof body !== "object" || typeof (body as Record<string, unknown>).isRemoteArea !== "boolean")
-     throw new HttpError(400, "isRemoteArea는 boolean이어야 합니다.");
+    throw new HttpError(400, "isRemoteArea는 boolean이어야 합니다.");
 }
