@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, type SyntheticEvent, type MouseEvent } fro
 
 import { useCouponPreview } from "../../order/hooks/useCouponPreview.ts";
 import type { Order } from "../../order/type.ts";
+import { Row } from "../../shared/components/layout/Row.tsx";
 import { formatPrice } from "../../shared/lib/format.ts";
 import { useAsyncAction } from "../../shared/lib/useAsyncAction.ts";
 import { useDebouncedValue } from "../../shared/lib/useDebouncedValue.ts";
@@ -10,7 +11,6 @@ import { toggleSelection, canSelectMore, forDisplay, MAX_COUPONS } from "../coup
 import type { AssessedCoupon, CouponId } from "../type.ts";
 
 import { CouponItem } from "./CouponItem.tsx";
-
 
 interface CouponModalProps {
   coupons: readonly AssessedCoupon[];
@@ -64,7 +64,7 @@ export function CouponModal({ coupons, initialSelected, onApply, onClose }: Coup
     >
       <header>
         <h2>쿠폰을 선택해 주세요</h2>
-        <button type="button" aria-label="닫기" onClick={requestCancel}>x</button>
+        <Row left={<button type="button" aria-label="닫기" onClick={requestCancel}>x</button>}/>
       </header>
       <p>쿠폰은 최대 {MAX_COUPONS}개까지 사용할 수 있습니다.</p>
       <ul>
@@ -84,9 +84,7 @@ export function CouponModal({ coupons, initialSelected, onApply, onClose }: Coup
       {apply.error && <p role="alert">쿠폰 적용에 실패했습니다.</p>}
       {previewError && <p role="alert">쿠폰 혜택을 불러오지 못했습니다.</p>}
       <button type="button" disabled={apply.isPending || isPriceStale} onClick={() => apply.run()}>
-        {isPriceStale
-          ? "쿠폰 혜택 계산 중…"
-          : `총 ${formatPrice(preview?.totalBenefitAmount ?? 0)} 할인 쿠폰 사용하기`}
+        {isPriceStale ? "쿠폰 혜택 계산 중…" : `총 ${formatPrice(preview?.totalBenefitAmount ?? 0)} 혜택 쿠폰 사용하기`}
       </button>
     </Dialog>
   );

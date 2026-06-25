@@ -28,7 +28,7 @@ describe("OrderSummary", () => {
     );
 
     expect(screen.getByText("증정 상품 가치")).toBeInTheDocument();
-    expect(screen.getByText("+ 20,000원")).toBeInTheDocument();
+    expect(screen.getByText("(+ 20,000원)")).toBeInTheDocument();
     expect(screen.getByText("43,000원")).toBeInTheDocument();
     expect(screen.queryByText("쿠폰 할인")).not.toBeInTheDocument();
   });

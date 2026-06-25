@@ -113,7 +113,7 @@ export function OrderConfirmContainer({ onProceed }: OrderConfirmContainerProps)
             도서산간 지역
           </label>
         }
-        right={<button type="button" onClick={openCouponModal}>쿠폰 선택</button>}
+        right={<button type="button" disabled={!couponsData} onClick={openCouponModal}>쿠폰 선택</button>}
       />
       {changeDestination.error && <ErrorMessage message="배송지 변경에 실패했습니다." />}
 
